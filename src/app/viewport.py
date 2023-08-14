@@ -6,6 +6,10 @@ class Viewport:
         self.__y_min = y_min
         self.__window = window
     
+    def draw_objects(self):
+        for obj in self.__window.display_file:
+            viewport_coordinates = 
+
     def transform_coordinates(self, coordinates):
         transformed_coordinates = []
         for coordinate in coordinates:

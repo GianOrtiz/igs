@@ -2,12 +2,12 @@ ZOOM_FACTOR = 5
 MOVE_FACTOR = 5
 
 class Window:
-    def __init__(self, x_max, x_min, y_max, y_min):
+    def __init__(self, x_max, x_min, y_max, y_min, display_file):
         self.__x_max = x_max
         self.__x_min = x_min
         self.__y_max = y_max
         self.__y_min = y_min
-        self.__display_file = []
+        self.__display_file = display_file
     
     def x_max(self):
         self.__x_max = x_max
