@@ -6,7 +6,7 @@ class DisplayFile:
         return self.__objects
 
     def add_object(self, obj):
-        self.__objects.insert(obj)
+        self.__objects.append(obj)
     
     def remove_object(self, obj):
         self.__objects.remove(obj)

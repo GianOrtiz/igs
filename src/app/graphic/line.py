@@ -1,4 +1,4 @@
-from object import Object, ObjectType
+from .object import Object, ObjectType
 
 class Line(Object):
     def __init__(self, start_point, end_point):

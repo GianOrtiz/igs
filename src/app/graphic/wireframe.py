@@ -1,4 +1,4 @@
-from object import Object, ObjectType
+from .object import Object, ObjectType
 
 class Wireframe(Object):
     def __init__(self, points):

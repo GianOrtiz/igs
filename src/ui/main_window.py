@@ -1,16 +1,16 @@
-import sys
 from PyQt5.QtCore import Qt
 import PyQt5.QtWidgets as widgets
+from .add_object_window import AddObjectWindow
 
 class InteractiveGraphicalSystem(widgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, viewport):
         super().__init__()
-
+        self.__viewport = viewport
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle("Interactive Graphical System")
-        self.setGeometry(0, 0, 800, 600)
+        self.setGeometry(100, 100, 800, 600)
 
         main_widget = widgets.QWidget(self)
         self.setCentralWidget(main_widget)
@@ -48,6 +48,7 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         # Add Object Button
         add_object_button = widgets.QPushButton("Add Object")
         left_layout.addWidget(add_object_button)
+        add_object_button.clicked.connect(self.on_add_object_clicked)
 
         right_panel = widgets.QWidget(self)
         main_layout.addWidget(right_panel)
@@ -63,7 +64,13 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         canvas_panel.setLayout(canvas_layout)
 
         self.canvas = widgets.QGraphicsView()
+        self.canvas.setFixedSize(self.__viewport.x_max(), self.__viewport.y_max())
         self.scene = widgets.QGraphicsScene()
+
+        lines_to_draw = self.__viewport.lines_to_draw()
+        for line in lines_to_draw:
+            self.scene.addLine(lines_to_draw[0], lines_to_draw[1], lines_to_draw[2], lines_to_draw[3])
+
         self.canvas.setScene(self.scene)
         canvas_layout.addWidget(self.canvas)
 
@@ -80,5 +87,6 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
         self.show()
 
-def mock_function():
-    print("Button clicked!")
+    def on_add_object_clicked(self):
+        self.add_object_window = AddObjectWindow(self.__viewport)
+        self.add_object_window.show()
