@@ -16,24 +16,32 @@ class Viewport:
     
     def display_file(self):
         return self.__window.display_file()
+    
+    def window(self):
+        return self.__window
 
     def lines_to_draw(self):
         for obj in self.__window.display_file().objects():
             if obj.type() == ObjectType.POINT:
                 points = obj.points()
-                return [points[0][0], points[0][1], points[0][0], points[0][1]]
+                transformed_coordinates = self.transform_coordinates(points)
+                return [transformed_coordinates[0][0], transformed_coordinates[0][1], transformed_coordinates[0][0], transformed_coordinates[0][1]]
             elif obj.type() == ObjectType.LINE:
                 points = obj.points()
-                return [points[0][0], points[0][1], points[1][0], points[1][1]]
+                transformed_coordinates = self.transform_coordinates(points)
+                return [transformed_coordinates[0][0], transformed_coordinates[0][1], transformed_coordinates[1][0], transformed_coordinates[1][1]]
             elif obj.type() == ObjectType.WIREFRAME:
                 lines = []
                 points = obj.points()
+                transformed_coordinates = self.transform_coordinates(points)
                 prev_point = None
-                for point in points:
+                for point in transformed_coordinates:
                     if prev_point is None:
                         prev_point = point
                     lines.append([prev_point[0], prev_point[1], point[0], point[1]])
+                    prev_point = point
                 return lines
+        return []
 
     def transform_coordinates(self, coordinates):
         transformed_coordinates = []

@@ -32,15 +32,26 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
         # Directional Buttons
         directional_buttons = widgets.QHBoxLayout()
-        for direction in ['Up', 'Down', 'Left', 'Right']:
-            direction_button = widgets.QPushButton(direction)
-            directional_buttons.addWidget(direction_button)
+        up_direction_button = widgets.QPushButton('Up')
+        up_direction_button.clicked.connect(self.__window_move_top)
+        directional_buttons.addWidget(up_direction_button)
+        down_direction_button = widgets.QPushButton('Down')
+        down_direction_button.clicked.connect(self.__window_move_bottom)
+        directional_buttons.addWidget(down_direction_button)
+        right_direction_button = widgets.QPushButton('Right')
+        right_direction_button.clicked.connect(self.__window_move_right)
+        directional_buttons.addWidget(right_direction_button)
+        left_direction_button = widgets.QPushButton('Left')
+        left_direction_button.clicked.connect(self.__window_move_left)
+        directional_buttons.addWidget(left_direction_button)
         left_layout.addLayout(directional_buttons)
 
         # Zoom Buttons
         zoom_buttons = widgets.QHBoxLayout()
         zoom_in_button = widgets.QPushButton("Zoom In")
+        zoom_in_button.clicked.connect(self.__window_zoom_in)
         zoom_out_button = widgets.QPushButton("Zoom Out")
+        zoom_out_button.clicked.connect(self.__window_zoom_out)
         zoom_buttons.addWidget(zoom_in_button)
         zoom_buttons.addWidget(zoom_out_button)
         left_layout.addLayout(zoom_buttons)
@@ -67,9 +78,7 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         self.canvas.setFixedSize(self.__viewport.x_max(), self.__viewport.y_max())
         self.scene = widgets.QGraphicsScene()
 
-        lines_to_draw = self.__viewport.lines_to_draw()
-        for line in lines_to_draw:
-            self.scene.addLine(lines_to_draw[0], lines_to_draw[1], lines_to_draw[2], lines_to_draw[3])
+        self.redraw_canvas()
 
         self.canvas.setScene(self.scene)
         canvas_layout.addWidget(self.canvas)
@@ -87,6 +96,37 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
         self.show()
 
+    def redraw_canvas(self):
+        self.scene.clear()
+        self.canvas.viewport().update()
+        lines_to_draw = self.__viewport.lines_to_draw()
+        for line in lines_to_draw:
+            self.scene.addLine(line[0], line[1], line[2], line[3])
+
     def on_add_object_clicked(self):
-        self.add_object_window = AddObjectWindow(self.__viewport)
+        self.add_object_window = AddObjectWindow(self.__viewport, self.redraw_canvas)
         self.add_object_window.show()
+
+    def __window_zoom_in(self):
+        self.__viewport.window().zoom_in()
+        self.redraw_canvas()
+    
+    def __window_zoom_out(self):
+        self.__viewport.window().zoom_out()
+        self.redraw_canvas()
+    
+    def __window_move_left(self):
+        self.__viewport.window().move_left()
+        self.redraw_canvas()
+    
+    def __window_move_right(self):
+        self.__viewport.window().move_right()
+        self.redraw_canvas()
+    
+    def __window_move_top(self):
+        self.__viewport.window().move_top()
+        self.redraw_canvas()
+
+    def __window_move_bottom(self):
+        self.__viewport.window().move_bottom()
+        self.redraw_canvas()

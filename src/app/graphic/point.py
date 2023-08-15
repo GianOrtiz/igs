@@ -6,7 +6,7 @@ class Point(Object):
         self.__x = x
         self.__y = y
     
-    def points():
+    def points(self):
         return [(x, y)]
 
     def x(self):

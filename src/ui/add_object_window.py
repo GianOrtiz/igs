@@ -6,10 +6,12 @@ from app.graphic.point import Point
 from app.graphic.wireframe import Wireframe
 
 class AddObjectWindow(widgets.QMainWindow):
-    def __init__(self, viewport):
+    def __init__(self, viewport, redraw_canvas):
         super().__init__()
         self.__viewport = viewport
         self.__select_object_type = ObjectType.POINT
+        self.__redraw_canvas = redraw_canvas
+
         self.initUI()
 
     def initUI(self):
@@ -57,7 +59,6 @@ class AddObjectWindow(widgets.QMainWindow):
 
     def __add_object(self):
         coordinates = list(eval(self.__coordinates_input.text()))
-        print(coordinates)
         if self.__select_object_type == ObjectType.LINE:
             if len(coordinates) != 2:
                 raise "Line type object requires exactly two coordinates"
@@ -71,4 +72,5 @@ class AddObjectWindow(widgets.QMainWindow):
                 raise "Wireframe type object requires at least one coordinate"
             self.__viewport.display_file().add_object(Wireframe(coordinates))
 
+        self.__redraw_canvas()
         self.close()
