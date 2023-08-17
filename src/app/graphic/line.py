@@ -17,3 +17,6 @@ class Line(Object):
     
     def end_point(self):
         return self.__end_point
+
+    def to_string(self):
+        return 'Line - ' + self.id()

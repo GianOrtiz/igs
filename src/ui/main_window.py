@@ -27,8 +27,9 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         left_panel.setLayout(left_layout)
 
         # List of Graphical Objects
-        object_list = widgets.QListWidget(self)
-        left_layout.addWidget(object_list)
+        self.__object_list = widgets.QListWidget(self)
+        self.__render_objects_list()
+        left_layout.addWidget(self.__object_list)
 
         # Directional Buttons
         directional_buttons = widgets.QHBoxLayout()
@@ -102,6 +103,8 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         lines_to_draw = self.__viewport.lines_to_draw()
         for line in lines_to_draw:
             self.scene.addLine(line[0], line[1], line[2], line[3])
+        
+        self.__render_objects_list()
 
     def on_add_object_clicked(self):
         self.add_object_window = AddObjectWindow(self.__viewport, self.redraw_canvas)
@@ -130,3 +133,9 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
     def __window_move_bottom(self):
         self.__viewport.window().move_bottom()
         self.redraw_canvas()
+
+    def __render_objects_list(self):
+        objects = self.__viewport.display_file().objects()
+        self.__object_list.clear()
+        for obj in objects:
+            self.__object_list.addItem(obj.to_string())

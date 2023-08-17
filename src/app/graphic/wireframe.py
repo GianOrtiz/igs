@@ -7,3 +7,6 @@ class Wireframe(Object):
 
     def points(self):
         return self.__points
+
+    def to_string(self):
+        return 'Wireframe - ' + self.id()

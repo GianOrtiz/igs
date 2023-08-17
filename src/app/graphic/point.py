@@ -14,3 +14,6 @@ class Point(Object):
     
     def y(self):
         return self.__y
+
+    def to_string(self):
+        return 'Point - ' + self.id()

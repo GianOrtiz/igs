@@ -25,11 +25,11 @@ class Viewport:
             if obj.type() == ObjectType.POINT:
                 points = obj.points()
                 transformed_coordinates = self.transform_coordinates(points)
-                return [transformed_coordinates[0][0], transformed_coordinates[0][1], transformed_coordinates[0][0], transformed_coordinates[0][1]]
+                return [[transformed_coordinates[0][0], transformed_coordinates[0][1], transformed_coordinates[0][0], transformed_coordinates[0][1]]]
             elif obj.type() == ObjectType.LINE:
                 points = obj.points()
                 transformed_coordinates = self.transform_coordinates(points)
-                return [transformed_coordinates[0][0], transformed_coordinates[0][1], transformed_coordinates[1][0], transformed_coordinates[1][1]]
+                return [[transformed_coordinates[0][0], transformed_coordinates[0][1], transformed_coordinates[1][0], transformed_coordinates[1][1]]]
             elif obj.type() == ObjectType.WIREFRAME:
                 lines = []
                 points = obj.points()
