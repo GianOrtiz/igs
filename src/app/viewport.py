@@ -52,4 +52,4 @@ class Viewport:
     def transform_coordinate(self, coordinate):
         x = ((coordinate[0] - self.__window.x_min())/(self.__window.x_max() - self.__window.x_min())) * (self.__x_max - self.__x_min)
         y = (1 - ((coordinate[1] - self.__window.y_min())/(self.__window.y_max() - self.__window.y_min()))) * (self.__y_max - self.__y_min)
-        return (x, y)
+        return (int(x), int(y))

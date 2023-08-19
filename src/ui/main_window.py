@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 import PyQt5.QtWidgets as widgets
 from .add_object_window import AddObjectWindow
+from .drawing import DrawingWidget
 
 class InteractiveGraphicalSystem(widgets.QMainWindow):
     def __init__(self, viewport):
@@ -74,15 +75,11 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         right_layout.addWidget(canvas_panel)
         canvas_layout = widgets.QVBoxLayout()
         canvas_panel.setLayout(canvas_layout)
+        self.__drawing = DrawingWidget()
+        self.__drawing.setFixedSize(self.__viewport.x_max(), self.__viewport.y_max())
 
-        self.canvas = widgets.QGraphicsView()
-        self.canvas.setFixedSize(self.__viewport.x_max(), self.__viewport.y_max())
-        self.scene = widgets.QGraphicsScene()
-
-        self.redraw_canvas()
-
-        self.canvas.setScene(self.scene)
-        canvas_layout.addWidget(self.canvas)
+        # self.canvas.setScene(self.scene)
+        canvas_layout.addWidget(self.__drawing)
 
         # Log Area
         log_panel = widgets.QWidget(self)
@@ -97,13 +94,13 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
         self.show()
 
+        self.redraw_canvas()
+
     def redraw_canvas(self):
-        self.scene.clear()
-        self.canvas.viewport().update()
         lines_to_draw = self.__viewport.lines_to_draw()
         for line in lines_to_draw:
-            self.scene.addLine(line[0], line[1], line[2], line[3])
-        
+            self.__drawing.paint((line[0], line[1], line[2], line[3]))
+
         self.__render_objects_list()
 
     def on_add_object_clicked(self):
