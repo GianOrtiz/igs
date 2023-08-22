@@ -1,5 +1,5 @@
-ZOOM_FACTOR = 0.5
-MOVE_FACTOR = 5
+ZOOM_FACTOR = 50
+MOVE_FACTOR = 50
 
 class Window:
     def __init__(self, x_max, x_min, y_max, y_min, display_file):
@@ -25,29 +25,29 @@ class Window:
         return self.__display_file
 
     def zoom_out(self):
-        self.__x_max = self.__x_max * (1 + ZOOM_FACTOR)
-        self.__x_min = self.__x_min * (1 + ZOOM_FACTOR)
-        self.__y_max = self.__y_max * (1 + ZOOM_FACTOR)
-        self.__y_min = self.__y_min * (1 + ZOOM_FACTOR)
+        self.__x_max = self.__x_max + ZOOM_FACTOR
+        self.__x_min = self.__x_min - ZOOM_FACTOR
+        self.__y_max = self.__y_max + ZOOM_FACTOR
+        self.__y_min = self.__y_min - ZOOM_FACTOR
     
     def zoom_in(self):
-        self.__x_max = self.__x_max * (1 - ZOOM_FACTOR)
-        self.__x_min = self.__x_min * (1 - ZOOM_FACTOR)
-        self.__y_max = self.__y_max * (1 - ZOOM_FACTOR)
-        self.__y_min = self.__y_min * (1 - ZOOM_FACTOR)
+        self.__x_max = self.__x_max - ZOOM_FACTOR
+        self.__x_min = self.__x_min + ZOOM_FACTOR
+        self.__y_max = self.__y_max - ZOOM_FACTOR
+        self.__y_min = self.__y_min + ZOOM_FACTOR
 
     def move_left(self):
-        self.__x_max = self.__x_max + MOVE_FACTOR
-        self.__x_min = self.__x_min - MOVE_FACTOR
-    
-    def move_right(self):
         self.__x_max = self.__x_max - MOVE_FACTOR
         self.__x_min = self.__x_min + MOVE_FACTOR
     
-    def move_bottom(self):
-        self.__y_max = self.__y_max + MOVE_FACTOR
-        self.__y_min = self.__y_min - MOVE_FACTOR
+    def move_right(self):
+        self.__x_max = self.__x_max + MOVE_FACTOR
+        self.__x_min = self.__x_min - MOVE_FACTOR
     
-    def move_top(self):
+    def move_bottom(self):
         self.__y_max = self.__y_max - MOVE_FACTOR
         self.__y_min = self.__y_min + MOVE_FACTOR
+    
+    def move_top(self):
+        self.__y_max = self.__y_max + MOVE_FACTOR
+        self.__y_min = self.__y_min - MOVE_FACTOR
