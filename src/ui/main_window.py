@@ -4,14 +4,17 @@ from .add_object_window import AddObjectWindow
 from .drawing import DrawingWidget
 
 class InteractiveGraphicalSystem(widgets.QMainWindow):
-    def __init__(self, viewport):
+    def __init__(self, viewport, width, height):
         super().__init__()
         self.__viewport = viewport
+        self.__width = width
+        self.__height = height
+
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle("Interactive Graphical System")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(0, 0, self.__width, self.__height)
 
         main_widget = widgets.QWidget(self)
         self.setCentralWidget(main_widget)
@@ -21,7 +24,8 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
         # Left Panel
         left_panel = widgets.QWidget(self)
-        left_panel.setMaximumWidth(int(self.width() * 0.24))
+        left_panel.setMaximumWidth(360)
+        left_panel.setMaximumHeight(588)
         main_layout.addWidget(left_panel)
 
         left_layout = widgets.QVBoxLayout()
@@ -71,7 +75,8 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
         # Viewport
         canvas_panel = widgets.QWidget(self)
-        canvas_panel.setMaximumHeight(int(self.height() * 0.76))
+        canvas_panel.setMaximumHeight(self.__viewport.y_max())
+        canvas_panel.setMaximumWidth(self.__viewport.x_max())
         right_layout.addWidget(canvas_panel)
         canvas_layout = widgets.QVBoxLayout()
         canvas_panel.setLayout(canvas_layout)
@@ -80,17 +85,6 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
         # self.canvas.setScene(self.scene)
         canvas_layout.addWidget(self.__drawing)
-
-        # Log Area
-        log_panel = widgets.QWidget(self)
-        log_panel.setMaximumHeight(int(self.height() * 0.24))
-        right_layout.addWidget(log_panel)
-        log_layout = widgets.QVBoxLayout()
-        log_panel.setLayout(log_layout)
-
-        log_area = widgets.QLabel("Log Area")
-        log_area.setAlignment(Qt.AlignCenter)
-        log_layout.addWidget(log_area)
 
         self.show()
 
