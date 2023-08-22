@@ -13,16 +13,17 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         self.initUI()
 
     def initUI(self):
+        # Create the main widget and positionate at central.
         self.setWindowTitle("Interactive Graphical System")
         self.setGeometry(0, 0, self.__width, self.__height)
-
         main_widget = widgets.QWidget(self)
         self.setCentralWidget(main_widget)
 
+        # Create horizontal box layout to apply my left panel and right panel.
         main_layout = widgets.QHBoxLayout()
         main_widget.setLayout(main_layout)
 
-        # Left Panel
+        # Create the left panel with objects list and command buttons.
         left_panel = widgets.QWidget(self)
         left_panel.setMaximumWidth(360)
         left_panel.setMaximumHeight(588)
@@ -31,12 +32,12 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         left_layout = widgets.QVBoxLayout()
         left_panel.setLayout(left_layout)
 
-        # List of Graphical Objects
+        # List of Graphical Objects widget.
         self.__object_list = widgets.QListWidget(self)
         self.__render_objects_list()
         left_layout.addWidget(self.__object_list)
 
-        # Directional Buttons
+        # Directional buttons.
         directional_buttons = widgets.QHBoxLayout()
         up_direction_button = widgets.QPushButton('Up')
         up_direction_button.clicked.connect(self.__window_move_top)
@@ -52,7 +53,7 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         directional_buttons.addWidget(left_direction_button)
         left_layout.addLayout(directional_buttons)
 
-        # Zoom Buttons
+        # Zoom buttons.
         zoom_buttons = widgets.QHBoxLayout()
         zoom_in_button = widgets.QPushButton("Zoom In")
         zoom_in_button.clicked.connect(self.__window_zoom_in)
@@ -62,18 +63,18 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         zoom_buttons.addWidget(zoom_out_button)
         left_layout.addLayout(zoom_buttons)
 
-        # Add Object Button
+        # Add new object button that adds a new object to the world.
         add_object_button = widgets.QPushButton("Add Object")
         left_layout.addWidget(add_object_button)
         add_object_button.clicked.connect(self.on_add_object_clicked)
 
+        # Positionate the right panel into the widget.
         right_panel = widgets.QWidget(self)
         main_layout.addWidget(right_panel)
-
         right_layout = widgets.QVBoxLayout()
         right_panel.setLayout(right_layout)
 
-        # Viewport
+        # Create the viewport and place it in the left panel of the window.
         canvas_panel = widgets.QWidget(self)
         canvas_panel.setMaximumHeight(self.__viewport.y_max())
         canvas_panel.setMaximumWidth(self.__viewport.x_max())
@@ -82,19 +83,14 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         canvas_panel.setLayout(canvas_layout)
         self.__drawing = DrawingWidget()
         self.__drawing.setFixedSize(self.__viewport.x_max(), self.__viewport.y_max())
-
-        # self.canvas.setScene(self.scene)
         canvas_layout.addWidget(self.__drawing)
 
         self.show()
-
         self.redraw_canvas()
 
     def redraw_canvas(self):
-        lines_to_draw = self.__viewport.lines_to_draw()
-        for line in lines_to_draw:
-            self.__drawing.paint((line[0], line[1], line[2], line[3]))
-
+        self.__drawing.clear_lines()
+        self.__viewport.draw(self.__drawing.paint)
         self.__render_objects_list()
 
     def on_add_object_clicked(self):
@@ -104,7 +100,7 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
     def __window_zoom_in(self):
         self.__viewport.window().zoom_in()
         self.redraw_canvas()
-    
+
     def __window_zoom_out(self):
         self.__viewport.window().zoom_out()
         self.redraw_canvas()

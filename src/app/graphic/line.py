@@ -20,3 +20,8 @@ class Line(Object):
 
     def to_string(self):
         return 'Line - ' + self.id()
+
+    def draw(self, draw_line, transform_coordinate):
+        start_point = transform_coordinate(self.__start_point)
+        end_point = transform_coordinate(self.__end_point)
+        draw_line((start_point[0], start_point[1], end_point[0], end_point[1]))

@@ -21,3 +21,7 @@ class Object(ABC):
     @abstractmethod
     def to_string(self):
         pass
+
+    @abstractmethod
+    def draw(self, draw_line, transform_coordinate):
+        pass

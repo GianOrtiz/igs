@@ -8,6 +8,9 @@ class DrawingWidget(QWidget):
         self.__painter = QPainter(self)
         self.__lines = []
 
+    def clear_lines(self):
+        self.__lines = []
+
     def paintEvent(self, event):
         self.__painter.end()
         self.__painter = QPainter(self)
