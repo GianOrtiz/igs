@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
 from enum import Enum
+from .utils import transform
+
 import uuid
+import math
 
 class ObjectType(Enum):
     POINT = 1
@@ -29,3 +32,142 @@ class Object(ABC):
     @abstractmethod
     def center(self):
         pass
+
+    @abstractmethod
+    def points(self):
+        pass
+
+    @abstractmethod
+    def set_points(self, points):
+        pass
+
+    def translate(self, position):
+        translate_matrix = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [position[0], position[1], 1]
+        ]
+
+        points = self.points()
+        transformed_points = []
+        for point in points:
+            transformed_point = transform(point, [translate_matrix])
+            transformed_points.append(transformed_point)
+        
+        self.set_points(transformed_points)
+
+    def rotate_center(self, angle_in_radians):
+        points = self.points()
+        transformed_points = []
+        object_center = self.center()
+        sin_angle = math.sin(angle_in_radians)
+        cos_angle = math.cos(angle_in_radians)
+        rotate_matrix = [
+            [cos_angle, -1 * sin_angle, 0],
+            [sin_angle, cos_angle, 0],
+            [0, 0, 1]
+        ]
+
+        for point in points:
+            dx = point[0] - object_center[0]
+            dy = point[1] - object_center[1]
+            translate_to_center_matrix = [
+                [0, 0, 1],
+                [0, 1, 0],
+                [-1 * dx, -1 * dy, 1],
+            ]
+            translate_to_point_matrix = [
+                [0, 0, 1],
+                [0, 1, 0],
+                [dx, dy, 1],
+            ]
+            transformed_point = transform(point, [
+                translate_to_center_matrix,
+                rotate_matrix,
+                translate_to_point_matrix,
+            ])
+            transformed_points.append(transformed_point)
+        
+        self.set_points(transformed_points)
+
+    def rotate_world_center(self, angle_in_radians):
+        sin_angle = math.sin(angle_in_radians)
+        cos_angle = math.cos(angle_in_radians)
+        rotate_matrix = [
+            [cos_angle, -1 * sin_angle, 0],
+            [sin_angle, cos_angle, 0],
+            [0, 0, 1]
+        ]
+        
+        points = self.points()
+        transformed_points = []
+        for point in points:
+            transformed_point = transform(point, [rotate_matrix])
+            transformed_points.append(transformed_point)
+        
+        self.set_points(transformed_points)
+    
+    def rotate_point(self, point, angle_in_radians):
+        points = self.points()
+        transformed_points = []
+        sin_angle = math.sin(angle_in_radians)
+        cos_angle = math.cos(angle_in_radians)
+        rotate_matrix = [
+            [cos_angle, -1 * sin_angle, 0],
+            [sin_angle, cos_angle, 0],
+            [0, 0, 1]
+        ]
+
+        for obj_point in points:
+            dx = obj_point[0] - point[0]
+            dy = obj_point[1] - point[1]
+            translate_to_center_matrix = [
+                [0, 0, 1],
+                [0, 1, 0],
+                [-1 * dx, -1 * dy, 1],
+            ]
+            translate_to_point_matrix = [
+                [0, 0, 1],
+                [0, 1, 0],
+                [dx, dy, 1],
+            ]
+            transformed_point = transform(point, [
+                translate_to_center_matrix,
+                rotate_matrix,
+                translate_to_point_matrix,
+            ])
+            transformed_points.append(transformed_point)
+        
+        self.set_points(transformed_points)
+    
+    def scale(self, scales):
+        object_center = self.center()
+
+        translate_to_world_center_matrix = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [-1 * object_center[0], -1 * object_center[1], 1]
+        ]
+        translate_to_object_center_matrix = [
+            [1, 0, 0],
+            [0, 1, 0],
+            [object_center[0], object_center[1], 1]
+        ]
+        scale_matrix = [
+            [scales[0], 0, 0],
+            [0, scales[1], 0],
+            [0, 0, 1]
+        ]
+
+        points = self.points()
+        transformed_points = []
+        for point in points:
+            transformed_point = transform(
+                point,
+                [
+                    translate_to_world_center_matrix,
+                    scale_matrix,
+                    translate_to_object_center_matrix])
+            transformed_points.append(transformed_point)
+        
+        self.set_points(transformed_points)
