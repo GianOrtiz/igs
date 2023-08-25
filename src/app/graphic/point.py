@@ -8,6 +8,10 @@ class Point(Object):
     
     def points(self):
         return [(x, y)]
+    
+    def set_points(self, points):
+        self.__x = points[0][0]
+        self.__y = points[0][1]
 
     def x(self):
         return self.__x

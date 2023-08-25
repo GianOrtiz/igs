@@ -12,6 +12,10 @@ class Line(Object):
             self.__end_point
         ]
     
+    def set_points(self, points):
+        self.__start_point = points[0]
+        self.__end_point = points[1]
+    
     def start_point(self):
         return self.__start_point
     
