@@ -31,3 +31,6 @@ class Point(Object):
         draw_line((p3[0], p3[1], p4[0], p4[1]))
         draw_line((p4[0], p4[1], p5[0], p5[1]))
         draw_line((p5[0], p5[1], p1[0], p1[1]))
+
+    def center(self):
+        return (self.__x, self.__y)

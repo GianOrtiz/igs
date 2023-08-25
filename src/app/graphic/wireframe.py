@@ -19,3 +19,8 @@ class Wireframe(Object):
             point = transform_coordinate(p)
             draw_line((prev_point[0], prev_point[1], point[0], point[1]))
             prev_point = point
+
+    def center(self):
+        center_x = sum(list(map(lambda pos: pos[0], self.__points)))/len(self.__points)
+        center_y = sum(list(map(lambda pos: pos[1], self.__points)))/len(self.__points)
+        return (center_x, center_y)

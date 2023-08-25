@@ -25,3 +25,7 @@ class Object(ABC):
     @abstractmethod
     def draw(self, draw_line, transform_coordinate):
         pass
+
+    @abstractmethod
+    def center(self):
+        pass
