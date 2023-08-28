@@ -124,5 +124,19 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
     def __render_objects_list(self):
         objects = self.__viewport.display_file().objects()
         self.__object_list.clear()
+        self.__object_list.doubleClicked.connect(self.__on_list_double_clicked)
         for obj in objects:
-            self.__object_list.addItem(obj.to_string())
+            item = widgets.QListWidgetItem()
+            item.setText(obj.to_string())
+            self.__object_list.insertItem(item)
+
+    def __on_list_double_clicked(self, item):
+        object_name = item.text()
+        object_id = object_name.split(' - ')[1]
+        for obj in self.__viewport.display_file().objects():
+            if obj.id() == object_id:
+                # Open window with this object.
+
+    def __item_clicked(self, obj):
+        # Open the screen with the object.
+        pass
