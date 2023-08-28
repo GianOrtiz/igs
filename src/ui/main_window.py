@@ -1,6 +1,7 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QModelIndex
 import PyQt5.QtWidgets as widgets
 from .add_object_window import AddObjectWindow
+from .transform_window import TransformObjectWindow
 from .drawing import DrawingWidget
 
 class InteractiveGraphicalSystem(widgets.QMainWindow):
@@ -34,6 +35,7 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
         # List of Graphical Objects widget.
         self.__object_list = widgets.QListWidget(self)
+        self.__object_list.doubleClicked.connect(self.__on_list_double_clicked)
         self.__render_objects_list()
         left_layout.addWidget(self.__object_list)
 
@@ -124,19 +126,12 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
     def __render_objects_list(self):
         objects = self.__viewport.display_file().objects()
         self.__object_list.clear()
-        self.__object_list.doubleClicked.connect(self.__on_list_double_clicked)
         for obj in objects:
-            item = widgets.QListWidgetItem()
-            item.setText(obj.to_string())
-            self.__object_list.insertItem(item)
+            self.__object_list.addItem(obj.to_string())
 
-    def __on_list_double_clicked(self, item):
-        object_name = item.text()
-        object_id = object_name.split(' - ')[1]
-        for obj in self.__viewport.display_file().objects():
-            if obj.id() == object_id:
-                # Open window with this object.
-
-    def __item_clicked(self, obj):
-        # Open the screen with the object.
-        pass
+    def __on_list_double_clicked(self, item: QModelIndex):
+        row = item.row()
+        objects = self.__viewport.display_file().objects()
+        obj = objects[row]
+        self.transform_object_window = TransformObjectWindow(self.__viewport, self.redraw_canvas, obj)
+        self.transform_object_window.show()
