@@ -1,7 +1,7 @@
 from .object import Object, ObjectType
 
 class Point(Object):
-    def __init__(self, x, y, color='#FFFFFF'):
+    def __init__(self, x, y, color='#000000'):
         super().__init__(ObjectType.POINT, color)
         self.__x = x
         self.__y = y
@@ -30,11 +30,11 @@ class Point(Object):
         p3 = transform_coordinate((self.__x+1, self.__y+1))
         p4 = transform_coordinate((self.__x+2, self.__y+1))
         p5 = transform_coordinate((self.__x+2, self.__y))
-        draw_line((p1[0], p1[1], p2[0], p2[1]), self.color())
-        draw_line((p2[0], p2[1], p3[0], p3[1]), self.color())
-        draw_line((p3[0], p3[1], p4[0], p4[1]), self.color())
-        draw_line((p4[0], p4[1], p5[0], p5[1]), self.color())
-        draw_line((p5[0], p5[1], p1[0], p1[1]), self.color())
+        draw_line((p1[0], p1[1], p2[0], p2[1], self.color()))
+        draw_line((p2[0], p2[1], p3[0], p3[1], self.color()))
+        draw_line((p3[0], p3[1], p4[0], p4[1], self.color()))
+        draw_line((p4[0], p4[1], p5[0], p5[1], self.color()))
+        draw_line((p5[0], p5[1], p1[0], p1[1], self.color()))
 
     def center(self):
         return (self.__x, self.__y)

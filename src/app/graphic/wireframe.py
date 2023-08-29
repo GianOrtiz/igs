@@ -1,7 +1,7 @@
 from .object import Object, ObjectType
 
 class Wireframe(Object):
-    def __init__(self, points, color='#FFFFFF'):
+    def __init__(self, points, color='#000000'):
         super().__init__(ObjectType.WIREFRAME, color)
         self.__points = points
 
@@ -20,7 +20,7 @@ class Wireframe(Object):
             if prev_point is None:
                 prev_point = transform_coordinate(p)
             point = transform_coordinate(p)
-            draw_line((prev_point[0], prev_point[1], point[0], point[1]), self.color())
+            draw_line((prev_point[0], prev_point[1], point[0], point[1], self.color()))
             prev_point = point
 
     def center(self):

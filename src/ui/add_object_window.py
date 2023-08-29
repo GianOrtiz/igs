@@ -30,7 +30,7 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__radio_button_line.toggled.connect(self.on_clicked_line)
         self.__radio_button_wireframe.toggled.connect(self.on_clicked_wireframe)
 
-        color_label = widgets.QLabel('Which color to use? (Write hexadecimal as in #FFFFFF, black will be used as default)')
+        color_label = widgets.QLabel('Which color to use? (Write hexadecimal as in #000000, black will be used as default)')
         self.__color_input = widgets.QLineEdit(self)
 
         insert_coordinates_label = widgets.QLabel('Insert object coordinates as points')
@@ -44,6 +44,8 @@ class AddObjectWindow(widgets.QMainWindow):
         layout.addWidget(self.__radio_button_point)
         layout.addWidget(self.__radio_button_line)
         layout.addWidget(self.__radio_button_wireframe)
+        layout.addWidget(color_label)
+        layout.addWidget(self.__color_input)
         layout.addWidget(insert_coordinates_label)
         layout.addWidget(self.__coordinates_input)
         layout.addWidget(self.__submit_button)
@@ -62,7 +64,7 @@ class AddObjectWindow(widgets.QMainWindow):
     def __add_object(self):
         color = self.__color_input.text()
         if color == '':
-            color = '#FFFFFF'
+            color = '#000000'
         coordinates = list(eval(self.__coordinates_input.text()))
         if self.__select_object_type == ObjectType.LINE:
             if len(coordinates) != 2:
