@@ -31,4 +31,5 @@ class Line(Object):
         draw_line((start_point[0], start_point[1], end_point[0], end_point[1], self.color()))
 
     def center(self):
-        return ((self.__start_point[0] - self.__end_point[0])/2, (self.__start_point[0] - self.__end_point[0])/2)
+        # Same things as a sum of all points divided by the number of points.
+        return ((self.__start_point[0] + self.__end_point[0])/2, (self.__start_point[1] + self.__end_point[1])/2)

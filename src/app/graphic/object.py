@@ -73,15 +73,15 @@ class Object(ABC):
         ]
 
         for point in points:
-            dx = point[0] - object_center[0]
-            dy = point[1] - object_center[1]
+            dx = object_center[0]
+            dy = object_center[1]
             translate_to_center_matrix = [
-                [0, 0, 1],
+                [1, 0, 0],
                 [0, 1, 0],
                 [-1 * dx, -1 * dy, 1],
             ]
             translate_to_point_matrix = [
-                [0, 0, 1],
+                [1, 0, 0],
                 [0, 1, 0],
                 [dx, dy, 1],
             ]
@@ -97,6 +97,7 @@ class Object(ABC):
     def rotate_world_center(self, angle_in_radians):
         sin_angle = math.sin(angle_in_radians)
         cos_angle = math.cos(angle_in_radians)
+        # Create the rotation matrix.
         rotate_matrix = [
             [cos_angle, -1 * sin_angle, 0],
             [sin_angle, cos_angle, 0],
@@ -106,6 +107,7 @@ class Object(ABC):
         points = self.points()
         transformed_points = []
         for point in points:
+            # As the default rotation is from the center of the world we do not need to translate the object.
             transformed_point = transform(point, [rotate_matrix])
             transformed_points.append(transformed_point)
         
@@ -116,6 +118,7 @@ class Object(ABC):
         transformed_points = []
         sin_angle = math.sin(angle_in_radians)
         cos_angle = math.cos(angle_in_radians)
+        # Create the rotation matrix.
         rotate_matrix = [
             [cos_angle, -1 * sin_angle, 0],
             [sin_angle, cos_angle, 0],
@@ -123,15 +126,16 @@ class Object(ABC):
         ]
 
         for obj_point in points:
-            dx = obj_point[0] - point[0]
-            dy = obj_point[1] - point[1]
+            # Create translation matrices from the given point.
+            dx = point[0]
+            dy = point[1]
             translate_to_center_matrix = [
-                [0, 0, 1],
+                [1, 0, 0],
                 [0, 1, 0],
                 [-1 * dx, -1 * dy, 1],
             ]
             translate_to_point_matrix = [
-                [0, 0, 1],
+                [1, 0, 0],
                 [0, 1, 0],
                 [dx, dy, 1],
             ]

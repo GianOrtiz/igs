@@ -1,3 +1,5 @@
+import math
+
 from PyQt5.QtCore import Qt
 import PyQt5.QtWidgets as widgets
 from app.graphic.object import ObjectType
@@ -90,9 +92,9 @@ class TransformObjectWindow(widgets.QMainWindow):
             self.center_world_radio = widgets.QRadioButton("Rotate from center of world")
             self.center_world_radio.toggled.connect(self.rotate_from_center_world)
             self.center_object_radio = widgets.QRadioButton("Rotate from center of object")
-            self.center_world_radio.toggled.connect(self.rotate_from_center_object)
+            self.center_object_radio.toggled.connect(self.rotate_from_center_object)
             self.point_radio = widgets.QRadioButton("Rotate from a point")
-            self.center_world_radio.toggled.connect(self.rotate_from_point)
+            self.point_radio.toggled.connect(self.rotate_from_point)
             rotate_type_layout.addWidget(self.center_world_radio)
             rotate_type_layout.addWidget(self.center_object_radio)
             rotate_type_layout.addWidget(self.point_radio)
@@ -104,7 +106,7 @@ class TransformObjectWindow(widgets.QMainWindow):
             self.__rotate_point_x_input = widgets.QLineEdit()
             self.__rotate_point_y_input = widgets.QLineEdit()
             self.input_layout.addRow("Point X:", self.__rotate_point_x_input)
-            self.input_layout.addRow("Point Y:", self.__rotate_point_x_input)
+            self.input_layout.addRow("Point Y:", self.__rotate_point_y_input)
 
     def rotate_from_center_world(self, enabled):
         if enabled:
@@ -128,53 +130,66 @@ class TransformObjectWindow(widgets.QMainWindow):
             self.input_layout.addRow("X Translate:", self.__x_translate_input)
             self.input_layout.addRow("Y Translate:", self.__y_translate_input)
 
+    def degree_to_radians(self, angle):
+        return angle * (math.pi / 180)
+
     def __transform(self):
         if self.__transformation == TransformationType.SCALE:
-            try:
-                x = int(self.__x_factor_input.text())
-            except:
-                x = 1
-            
-            try:
-                y = int(self.__y_factor_input.text())
-            except:
-                y = 1
-
-            self.__object.scale((x, y))
+            self.scale()
         elif self.__transformation == TransformationType.TRANSLATE:
+            self.translate()
+        else:
+           self.rotate()
+
+        self.__redraw_canvas()
+        self.close()
+
+    def scale(self):
+        try:
+            x = int(self.__x_factor_input.text())
+        except:
+            x = 1
+        
+        try:
+            y = int(self.__y_factor_input.text())
+        except:
+            y = 1
+
+        self.__object.scale((x, y))
+
+    def translate(self):
+        try:
+            x = int(self.__x_translate_input.text())
+        except:
+            x = 1
+        
+        try:
+            y = int(self.__y_translate_input.text())
+        except:
+            y = 1
+
+        self.__object.translate((x, y))
+
+    def rotate(self):
+        try:
+            angle = self.degree_to_radians(int(self.__angle_input.text()))
+        except:
+            # Angle 0 does nothing to the graphical object as it rotates the object over nothing.
+            angle = 0
+
+        if self.__rotation_type == RotationType.FROM_CENTER_OF_OBJECT:
+            self.__object.rotate_center(angle)
+        elif self.__rotation_type == RotationType.FROM_CENTER_OF_WORLD:
+            self.__object.rotate_world_center(angle)
+        else:
             try:
                 x = int(self.__x_translate_input.text())
             except:
-                x = 1
+                x = 0
             
             try:
                 y = int(self.__y_translate_input.text())
             except:
-                y = 1
+                y = 0
 
-            self.__object.translate((x, y))
-        else:
-            try:
-                angle = self.__angle_input.text()
-            except:
-                angle = 360
-
-            if self.__rotation_type == RotationType.FROM_CENTER_OF_OBJECT:
-                self.__object.rotate_center(angle)
-            elif self.__rotation_type == RotationType.FROM_CENTER_OF_WORLD:
-                self.__object.rotate_world_center(angle)
-            else:
-                try:
-                    x = int(self.__x_translate_input.text())
-                except:
-                    x = 0
-                
-                try:
-                    y = int(self.__y_translate_input.text())
-                except:
-                    y = 0
-
-                self.__object.rotate_point(angle, (x, y))
-
-        self.__redraw_canvas()
-        self.close()
+            self.__object.rotate_point(angle, (x, y))
