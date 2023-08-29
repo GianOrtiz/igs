@@ -11,15 +11,19 @@ class ObjectType(Enum):
     WIREFRAME = 3
 
 class Object(ABC):
-    def __init__(self, type):
+    def __init__(self, type, color):
         self.__type = type
         self.__id = uuid.uuid4().hex
+        self.__color = color
 
     def type(self):
         return self.__type
     
     def id(self):
         return self.__id
+
+    def color(self):
+        return self.__color
 
     @abstractmethod
     def to_string(self):

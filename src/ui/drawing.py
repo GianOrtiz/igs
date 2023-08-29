@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QWidget
-from PyQt5.QtGui import QPainter, QPen
+from PyQt5.QtGui import QPainter, QPen, QColor
 from PyQt5.QtCore import Qt
 
 class DrawingWidget(QWidget):
@@ -15,12 +15,11 @@ class DrawingWidget(QWidget):
         self.__painter.end()
         self.__painter = QPainter(self)
         self.__painter.fillRect(self.rect(), Qt.white)
-        
-        pen = QPen(Qt.black)
-        self.__painter.setPen(pen)
 
         for line in self.__lines:
-            x1, y1, x2, y2 = line
+            x1, y1, x2, y2, color = line
+            pen = QPen(QColor(color))
+            self.__painter.setPen(pen)
             self.__painter.drawLine(x1, y1, x2, y2)
 
     def paint(self, line):
