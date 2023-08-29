@@ -57,7 +57,7 @@ class TransformObjectWindow(widgets.QMainWindow):
 
         self.__submit_button = widgets.QPushButton('Transform')
         self.__submit_button.clicked.connect(self.__transform)
-        layout.addWidget(self.input_area)
+        layout.addWidget(self.__submit_button)
 
         main_widget.setLayout(layout)
 
@@ -74,8 +74,8 @@ class TransformObjectWindow(widgets.QMainWindow):
             self.clear_input_area()
             self.__x_factor_input = widgets.QLineEdit()
             self.__y_factor_input = widgets.QLineEdit()
-            self.input_layout.addRow("X Factor:", widgets.QLineEdit())
-            self.input_layout.addRow("Y Factor:", widgets.QLineEdit())
+            self.input_layout.addRow("X Factor:", self.__x_factor_input)
+            self.input_layout.addRow("Y Factor:", self.__y_factor_input)
 
     def show_rotate_area(self, enabled):
         if enabled:
@@ -131,24 +131,24 @@ class TransformObjectWindow(widgets.QMainWindow):
     def __transform(self):
         if self.__transformation == TransformationType.SCALE:
             try:
-                x = self.__x_factor_input.text()
+                x = int(self.__x_factor_input.text())
             except:
                 x = 1
             
             try:
-                y = self.__y_factor_input.text()
+                y = int(self.__y_factor_input.text())
             except:
                 y = 1
 
             self.__object.scale((x, y))
         elif self.__transformation == TransformationType.TRANSLATE:
             try:
-                x = self.__x_translate_input.text()
+                x = int(self.__x_translate_input.text())
             except:
                 x = 1
             
             try:
-                y = self.__y_translate_input.text()
+                y = int(self.__y_translate_input.text())
             except:
                 y = 1
 
@@ -165,13 +165,16 @@ class TransformObjectWindow(widgets.QMainWindow):
                 self.__object.rotate_world_center(angle)
             else:
                 try:
-                    x = self.__x_translate_input.text()
+                    x = int(self.__x_translate_input.text())
                 except:
                     x = 0
                 
                 try:
-                    y = self.__y_translate_input.text()
+                    y = int(self.__y_translate_input.text())
                 except:
                     y = 0
 
                 self.__object.rotate_point(angle, (x, y))
+
+        self.__redraw_canvas()
+        self.close()

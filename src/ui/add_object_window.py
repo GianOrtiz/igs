@@ -36,7 +36,6 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__submit_button = widgets.QPushButton('Add')
         self.__submit_button.clicked.connect(self.__add_object)
 
-
         layout = widgets.QVBoxLayout()
         layout.addWidget(select_object_label)
         layout.addWidget(self.__radio_button_point)
