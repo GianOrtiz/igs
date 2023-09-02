@@ -20,7 +20,7 @@ class DrawingWidget(QWidget):
             x1, y1, x2, y2, color = line
             pen = QPen(QColor(color))
             self.__painter.setPen(pen)
-            self.__painter.drawLine(x1, y1, x2, y2)
+            self.__painter.drawLine(int(x1), int(y1), int(x2), int(y2))
 
     def paint(self, line):
         self.__lines.append(line)
