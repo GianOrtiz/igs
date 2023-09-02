@@ -1,4 +1,5 @@
 from .object import Object, ObjectType
+from .utils import transform
 
 class Line(Object):
     def __init__(self, start_point, end_point, color='#000000'):
@@ -33,3 +34,14 @@ class Line(Object):
     def center(self):
         # Same things as a sum of all points divided by the number of points.
         return ((self.__start_point[0] + self.__end_point[0])/2, (self.__start_point[1] + self.__end_point[1])/2)
+
+    def object_from_transformation(self, transformations):
+        points = self.points()
+        transformed_points = []
+        for point in points:
+            transformed_point = transform(point, transformations)
+            transformed_points.append(transformed_point)
+        
+        obj = Line((0, 0), (0, 0), self.color())
+        obj.set_points(transformed_points)
+        return obj

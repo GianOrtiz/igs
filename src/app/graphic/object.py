@@ -113,6 +113,10 @@ class Object(ABC):
         
         self.set_points(transformed_points)
     
+    @abstractmethod
+    def object_from_transformation(self, transformations):
+        pass
+    
     def rotate_point(self, point, angle_in_radians):
         points = self.points()
         transformed_points = []

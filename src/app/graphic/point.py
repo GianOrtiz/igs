@@ -1,4 +1,5 @@
 from .object import Object, ObjectType
+from .utils import transform
 
 class Point(Object):
     def __init__(self, x, y, color='#000000'):
@@ -38,3 +39,14 @@ class Point(Object):
 
     def center(self):
         return (self.__x, self.__y)
+
+    def object_from_transformation(self, transformations):
+        points = self.points()
+        transformed_points = []
+        for point in points:
+            transformed_point = transform(point, transformations)
+            transformed_points.append(transformed_point)
+        
+        obj = Point(0, 0, self.color())
+        obj.set_points(transformed_points)
+        return obj

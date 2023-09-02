@@ -69,15 +69,15 @@ class AddObjectWindow(widgets.QMainWindow):
         if self.__select_object_type == ObjectType.LINE:
             if len(coordinates) != 2:
                 raise "Line type object requires exactly two coordinates"
-            self.__viewport.display_file().add_object(Line(coordinates[0], coordinates[1], color))
+            self.__viewport.window().add_object(Line(coordinates[0], coordinates[1], color))
         elif self.__select_object_type == ObjectType.POINT:
             if len(coordinates) != 2:
                 raise "Point type object requires exactly one coordinate"
-            self.__viewport.display_file().add_object(Point(coordinates[0], coordinates[1], color))
+            self.__viewport.window().add_object(Point(coordinates[0], coordinates[1], color))
         elif self.__select_object_type == ObjectType.WIREFRAME:
             if len(coordinates) < 1:
                 raise "Wireframe type object requires at least one coordinate"
-            self.__viewport.display_file().add_object(Wireframe(coordinates, color))
+            self.__viewport.window().add_object(Wireframe(coordinates, color))
 
         self.__redraw_canvas()
         self.close()

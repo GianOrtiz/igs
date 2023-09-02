@@ -27,3 +27,14 @@ class Wireframe(Object):
         center_x = sum(list(map(lambda pos: pos[0], self.__points)))/len(self.__points)
         center_y = sum(list(map(lambda pos: pos[1], self.__points)))/len(self.__points)
         return (center_x, center_y)
+
+    def object_from_transformation(self, transformations):
+        points = self.points()
+        transformed_points = []
+        for point in points:
+            transformed_point = transform(point, transformations)
+            transformed_points.append(transformed_point)
+        
+        obj = Wireframe([], self.color())
+        obj.set_points(transformed_points)
+        return obj
