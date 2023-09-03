@@ -5,6 +5,7 @@ from .display_file import DisplayFile
 
 ZOOM_FACTOR = 50
 MOVE_FACTOR = 50
+ROTATION_FACTOR = 10
 
 class Window:
     def __init__(self, x_max, x_min, y_max, y_min, display_file):
@@ -12,6 +13,7 @@ class Window:
         self.__x_min: float = x_min
         self.__y_max: float = y_max
         self.__y_min: float = y_min
+        self.__rotation: int = 0
         window_center = self.__calculate_window_center()
         self.__window_center_x: float = window_center[0]
         self.__window_center_y: float = window_center[1]
@@ -91,7 +93,7 @@ class Window:
             [0, 1, 0],
             [-1 * self.__window_center_x, -1 * self.__window_center_y, 1],
         ]
-        radians = 0
+        radians = self.__rotation
         angle_sin = math.sin(radians)
         angle_cos = math.cos(radians)
         rotate_matrix = [
@@ -99,8 +101,8 @@ class Window:
             [angle_sin, angle_cos, 0],
             [0, 0, 1],
         ]
-        normalized_x = 1/self.__x_max
-        normalized_y = 1/self.__y_max
+        normalized_x = 2/self.__x_max
+        normalized_y = 2/self.__y_max
         scale_to_normalized_matrix = [
             [normalized_x, 0, 0],
             [0, normalized_y, 0],
