@@ -5,7 +5,7 @@ from .display_file import DisplayFile
 
 ZOOM_FACTOR = 50
 MOVE_FACTOR = 50
-ROTATION_FACTOR = 10
+ROTATION_FACTOR = 0.1
 
 class Window:
     def __init__(self, x_max, x_min, y_max, y_min, display_file):
@@ -84,6 +84,16 @@ class Window:
         self.__y_max = self.__y_max + MOVE_FACTOR
         self.__y_min = self.__y_min - MOVE_FACTOR
         self.__window_center_y = self.__window_center_y + MOVE_FACTOR
+        self.__normalized_display_file = DisplayFile()
+        self.__generate_normalized_display_file()
+
+    def rotate_left(self):
+        self.__rotation = self.__rotation + ROTATION_FACTOR
+        self.__normalized_display_file = DisplayFile()
+        self.__generate_normalized_display_file()
+
+    def rotate_right(self):
+        self.__rotation = self.__rotation - ROTATION_FACTOR
         self.__normalized_display_file = DisplayFile()
         self.__generate_normalized_display_file()
 

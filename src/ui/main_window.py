@@ -65,6 +65,15 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         zoom_buttons.addWidget(zoom_out_button)
         left_layout.addLayout(zoom_buttons)
 
+        rotate_buttons = widgets.QHBoxLayout()
+        rotate_left_button = widgets.QPushButton("Rotate Left")
+        rotate_left_button.clicked.connect(self.__rotate_window_left)
+        rotate_right_button = widgets.QPushButton("Rotate Right")
+        rotate_right_button.clicked.connect(self.__rotate_window_right)
+        rotate_buttons.addWidget(rotate_left_button)
+        rotate_buttons.addWidget(rotate_right_button)
+        left_layout.addLayout(rotate_buttons)
+
         # Add new object button that adds a new object to the world.
         add_object_button = widgets.QPushButton("Add Object")
         left_layout.addWidget(add_object_button)
@@ -135,3 +144,11 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         obj = objects[row]
         self.transform_object_window = TransformObjectWindow(self.__viewport, self.redraw_canvas, obj)
         self.transform_object_window.show()
+
+    def __rotate_window_left(self):
+        self.__viewport.window().rotate_left()
+        self.redraw_canvas()
+    
+    def __rotate_window_right(self):
+        self.__viewport.window().rotate_right()
+        self.redraw_canvas()
