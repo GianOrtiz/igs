@@ -74,6 +74,15 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         rotate_buttons.addWidget(rotate_right_button)
         left_layout.addLayout(rotate_buttons)
 
+        import_export_area = widgets.QHBoxLayout()
+        import_button = widgets.QPushButton("Import OBJ")
+        import_button.clicked.connect(self.__import_obj)
+        export_button = widgets.QPushButton("Export OBJ")
+        export_button.clicked.connect(self.__export_obj)
+        import_export_area.addWidget(import_button)
+        import_export_area.addWidget(export_button)
+        left_layout.addLayout(import_export_area)
+
         # Add new object button that adds a new object to the world.
         add_object_button = widgets.QPushButton("Add Object")
         left_layout.addWidget(add_object_button)
@@ -152,3 +161,14 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
     def __rotate_window_right(self):
         self.__viewport.window().rotate_right()
         self.redraw_canvas()
+
+    def __import_obj(self):
+        filename = widgets.QFileDialog.getOpenFileName(self, "Select OBJ file", "/home", "Wavefront (*.obj)")
+        if filename[0] != '':
+            self.__viewport.window().display_file().import_file(filename[0])
+            self.__viewport.window().generate_normalized_display_file()
+
+    def __export_obj(self):
+        filename = widgets.QFileDialog.getOpenFileName(self, "Select OBJ file", "/home", "Wavefront (*.obj)")
+        if filename[0] != '':
+            self.__viewport.window().display_file().export(filename[0])

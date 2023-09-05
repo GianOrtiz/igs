@@ -19,7 +19,7 @@ class Window:
         self.__window_center_y: float = window_center[1]
         self.__display_file: DisplayFile = display_file
         self.__normalized_display_file: DisplayFile = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
     
     def x_max(self) -> float:
         return self.__x_max
@@ -49,7 +49,7 @@ class Window:
         self.__y_max = self.__y_max + ZOOM_FACTOR
         self.__y_min = self.__y_min - ZOOM_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
     
     def zoom_in(self):
         self.__x_max = self.__x_max - ZOOM_FACTOR
@@ -57,47 +57,48 @@ class Window:
         self.__y_max = self.__y_max - ZOOM_FACTOR
         self.__y_min = self.__y_min + ZOOM_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
 
     def move_left(self):
         self.__x_max = self.__x_max - MOVE_FACTOR
         self.__x_min = self.__x_min + MOVE_FACTOR
         self.__window_center_x = self.__window_center_x - MOVE_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
     
     def move_right(self):
         self.__x_max = self.__x_max + MOVE_FACTOR
         self.__x_min = self.__x_min - MOVE_FACTOR
         self.__window_center_x = self.__window_center_x + MOVE_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
     
     def move_bottom(self):
         self.__y_max = self.__y_max - MOVE_FACTOR
         self.__y_min = self.__y_min + MOVE_FACTOR
         self.__window_center_y = self.__window_center_y - MOVE_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
     
     def move_top(self):
         self.__y_max = self.__y_max + MOVE_FACTOR
         self.__y_min = self.__y_min - MOVE_FACTOR
         self.__window_center_y = self.__window_center_y + MOVE_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
 
     def rotate_left(self):
         self.__rotation = self.__rotation + ROTATION_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
 
     def rotate_right(self):
         self.__rotation = self.__rotation - ROTATION_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.__generate_normalized_display_file()
+        self.generate_normalized_display_file()
 
-    def __generate_normalized_display_file(self):
+    def generate_normalized_display_file(self):
+        self.__normalized_display_file = DisplayFile()
         translate_to_center_matrix = [
             [1, 0, 0],
             [0, 1, 0],
