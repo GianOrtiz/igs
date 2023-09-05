@@ -60,30 +60,50 @@ class Window:
         self.generate_normalized_display_file()
 
     def move_left(self):
-        self.__x_max = self.__x_max - MOVE_FACTOR
-        self.__x_min = self.__x_min + MOVE_FACTOR
-        self.__window_center_x = self.__window_center_x - MOVE_FACTOR
+        y_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
+        x_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
+        self.__x_max -= x_move_factor
+        self.__x_min -= x_move_factor
+        self.__window_center_x -= x_move_factor
+        self.__y_max -= y_move_factor
+        self.__y_min -= y_move_factor
+        self.__window_center_y -= y_move_factor
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
     
     def move_right(self):
-        self.__x_max = self.__x_max + MOVE_FACTOR
-        self.__x_min = self.__x_min - MOVE_FACTOR
-        self.__window_center_x = self.__window_center_x + MOVE_FACTOR
+        y_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
+        x_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
+        self.__x_max += x_move_factor
+        self.__x_min += x_move_factor
+        self.__window_center_x += x_move_factor
+        self.__y_max += y_move_factor
+        self.__y_min += y_move_factor
+        self.__window_center_y += y_move_factor
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
     
     def move_bottom(self):
-        self.__y_max = self.__y_max - MOVE_FACTOR
-        self.__y_min = self.__y_min + MOVE_FACTOR
-        self.__window_center_y = self.__window_center_y - MOVE_FACTOR
+        x_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
+        y_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
+        self.__y_max = self.__y_max - y_move_factor
+        self.__y_min = self.__y_min - y_move_factor
+        self.__window_center_y = self.__window_center_y - y_move_factor
+        self.__x_max = self.__x_max + x_move_factor
+        self.__x_min = self.__x_min + x_move_factor
+        self.__window_center_x = self.__window_center_x + x_move_factor
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
     
     def move_top(self):
-        self.__y_max = self.__y_max + MOVE_FACTOR
-        self.__y_min = self.__y_min - MOVE_FACTOR
-        self.__window_center_y = self.__window_center_y + MOVE_FACTOR
+        x_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
+        y_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
+        self.__y_max = self.__y_max + y_move_factor
+        self.__y_min = self.__y_min + y_move_factor
+        self.__window_center_y = self.__window_center_y + y_move_factor
+        self.__x_max = self.__x_max - x_move_factor
+        self.__x_min = self.__x_min - x_move_factor
+        self.__window_center_x = self.__window_center_x - x_move_factor
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
 
@@ -112,8 +132,8 @@ class Window:
             [angle_sin, angle_cos, 0],
             [0, 0, 1],
         ]
-        normalized_x = 2/self.__x_max
-        normalized_y = 2/self.__y_max
+        normalized_x = 2/(self.__x_max - self.__x_min)
+        normalized_y = 2/(self.__y_max - self.__y_min)
         scale_to_normalized_matrix = [
             [normalized_x, 0, 0],
             [0, normalized_y, 0],
@@ -130,7 +150,7 @@ class Window:
             [0, 1, 0],
             [-1 * self.__window_center_x, -1 * self.__window_center_y, 1],
         ]
-        radians = 0
+        radians = self.__rotation
         angle_sin = math.sin(radians)
         angle_cos = math.cos(radians)
         rotate_matrix = [
@@ -138,8 +158,8 @@ class Window:
             [angle_sin, angle_cos, 0],
             [0, 0, 1],
         ]
-        normalized_x = 2/self.__x_max
-        normalized_y = 2/self.__y_max
+        normalized_x = 2/(self.__x_max - self.__x_min)
+        normalized_y = 2/(self.__y_max - self.__y_min)
         scale_to_normalized_matrix = [
             [normalized_x, 0, 0],
             [0, normalized_y, 0],
