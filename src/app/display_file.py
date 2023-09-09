@@ -1,10 +1,11 @@
 from .graphic.descriptor_object import DescriptorOBJ
+from .graphic.object import Object
 
 class DisplayFile:
     def __init__(self):
         self.__objects = []
     
-    def objects(self):
+    def objects(self) -> list[Object]:
         return self.__objects
 
     def add_object(self, obj):

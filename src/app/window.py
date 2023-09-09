@@ -1,6 +1,6 @@
 import math
 from typing import Tuple
-from .graphic.object import Object
+from .graphic.object import Object, ObjectType
 from .display_file import DisplayFile
 
 ZOOM_FACTOR = 50
@@ -42,6 +42,7 @@ class Window:
     def add_object(self, obj: Object):
         self.__display_file.add_object(obj)
         self.add_normalized_object(obj)
+        self.clip()
 
     def zoom_out(self):
         self.__x_max = self.__x_max + ZOOM_FACTOR
@@ -50,6 +51,7 @@ class Window:
         self.__y_min = self.__y_min - ZOOM_FACTOR
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
+        self.clip()
     
     def zoom_in(self):
         self.__x_max = self.__x_max - ZOOM_FACTOR
@@ -58,6 +60,7 @@ class Window:
         self.__y_min = self.__y_min + ZOOM_FACTOR
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
+        self.clip()
 
     def move_left(self):
         y_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
@@ -70,6 +73,7 @@ class Window:
         self.__window_center_y -= y_move_factor
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
+        self.clip()
     
     def move_right(self):
         y_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
@@ -82,6 +86,7 @@ class Window:
         self.__window_center_y += y_move_factor
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
+        self.clip()
     
     def move_bottom(self):
         x_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
@@ -94,6 +99,7 @@ class Window:
         self.__window_center_x = self.__window_center_x + x_move_factor
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
+        self.clip()
     
     def move_top(self):
         x_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
@@ -106,16 +112,19 @@ class Window:
         self.__window_center_x = self.__window_center_x - x_move_factor
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
+        self.clip()
 
     def rotate_left(self):
         self.__rotation = self.__rotation + ROTATION_FACTOR
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
+        self.clip()
 
     def rotate_right(self):
         self.__rotation = self.__rotation - ROTATION_FACTOR
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
+        self.clip()
 
     def generate_normalized_display_file(self):
         self.__normalized_display_file = DisplayFile()
@@ -177,3 +186,20 @@ class Window:
 
     def __calculate_window_center(self) -> Tuple[float]:
         return ((self.__x_max - self.__x_min)/2, (self.__y_max - self.__y_min)/2)
+
+    def clip(self):
+        for obj in self.__normalized_display_file.objects():
+            if obj.type() == ObjectType.LINE:
+                pass
+            elif obj.type() == ObjectType.POINT:
+                points = obj.points()
+                x, y = points[0]
+                if x <= 1 and x >= -1 and y <= 1 and y >= -1:
+                    obj.set_show(True)
+                else:
+                    obj.set_show(False)
+            elif obj.type() == ObjectType.WIREFRAME:
+                pass
+
+    # def __clip_object(self, obj: Object):
+        

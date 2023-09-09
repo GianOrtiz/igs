@@ -15,6 +15,7 @@ class Object(ABC):
         self.__type = type
         self.__id = uuid.uuid4().hex
         self.__color = color
+        self.__show = True
 
     def type(self):
         return self.__type
@@ -24,6 +25,12 @@ class Object(ABC):
 
     def color(self):
         return self.__color
+
+    def show(self) -> bool:
+        return self.__show
+    
+    def set_show(self, show: bool):
+        self.__show = show
 
     @abstractmethod
     def to_string(self):

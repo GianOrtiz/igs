@@ -30,7 +30,8 @@ class Viewport:
         draw_line((self.__x_max - 20, 10, 10, 10, '#FF0000'))
         
         for obj in self.__window.normalized_display_file().objects():
-            obj.draw(draw_line, transform_coordinate=self.transform_coordinate)
+            if obj.show():
+                obj.draw(draw_line, transform_coordinate=self.transform_coordinate)
 
     def transform_coordinates(self, coordinates: list[tuple[float, float]]) -> list[tuple[float, float]]:
         transformed_coordinates = []
