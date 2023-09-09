@@ -23,6 +23,12 @@ class Viewport:
         return self.__window
 
     def draw(self, draw_line):
+        # Draw the limit of the viewport.
+        draw_line((10, 10, 10, self.__y_max - 20, '#FF0000'))
+        draw_line((10, self.__y_max - 20, self.__x_max - 20, self.__y_max - 20, '#FF0000'))
+        draw_line((self.__x_max - 20, self.__y_max - 20, self.__x_max - 20, 10, '#FF0000'))
+        draw_line((self.__x_max - 20, 10, 10, 10, '#FF0000'))
+        
         for obj in self.__window.normalized_display_file().objects():
             obj.draw(draw_line, transform_coordinate=self.transform_coordinate)
 
