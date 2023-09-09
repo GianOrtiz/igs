@@ -2,6 +2,7 @@ import math
 from typing import Tuple
 from .graphic.object import Object, ObjectType
 from .display_file import DisplayFile
+from .graphic.line import Line
 
 ZOOM_FACTOR = 50
 MOVE_FACTOR = 50
@@ -190,7 +191,7 @@ class Window:
     def clip(self):
         for obj in self.__normalized_display_file.objects():
             if obj.type() == ObjectType.LINE:
-                pass
+                self.cohen_sutherland(obj)
             elif obj.type() == ObjectType.POINT:
                 points = obj.points()
                 x, y = points[0]
@@ -200,6 +201,82 @@ class Window:
                     obj.set_show(False)
             elif obj.type() == ObjectType.WIREFRAME:
                 pass
-
-    # def __clip_object(self, obj: Object):
         
+    def cohen_sutherland(self, line: Line):
+        points = line.points()
+
+        def get_rc(point):
+            rc = 0b0000
+            x, y = point
+
+            if x < -1:
+                rc = rc | 0b0010
+            else:
+                rc = rc | 0b0000
+            
+            if x > 1:
+                rc = rc | 0b1000
+            else:
+                rc = rc | 0b0000
+
+            if y < -1:
+                rc = rc | 0b0001
+            else:
+                rc = rc | 0b0000
+            
+            if y > 1:
+                rc = rc | 0b0100
+            else:
+                rc = rc | 0b0000
+
+            return rc
+
+        start_point = points[0]
+        end_point = points[1]
+
+        start_rc = get_rc(start_point)
+        end_rc = get_rc(end_point)
+
+        while True:
+            if start_rc == end_rc and start_rc == 0b0000:
+                line.set_show(True)
+                break
+            if start_rc & end_rc != 0:
+                line.set_show(False)
+                break
+            else:
+                line.set_show(True)
+                
+                x1, y1 = start_point
+                x2, y2 = end_point
+
+                if start_rc > end_rc:
+                    rc = start_rc
+                else:
+                    rc = end_rc
+
+                if rc & 0b0100 != 0:
+                    x = x1 + (x2 - x1) * (1 - y1) / (y2 - y1)
+                    y = 1
+                elif rc & 0b0001 != 0:
+                    x = x1 + (x2 - x1) * (-1 - y1) / (y2 - y1)
+                    y = -1
+                elif rc & 0b1000 != 0:
+                    y = y1 + (y2 - y1) * (1 - x1) / (x2 - x1)
+                    x = 1
+                elif rc & 0b0010 != 0:
+                    y = y1 + (y2 - y1) * (-1 - x1) / (x2 - x1)
+                    x = -1
+
+                if rc == start_rc:
+                    x1 = x
+                    y1 = y
+                else:
+                    x2 = x
+                    y2 = y
+
+                start_point = (x1, y1)
+                end_point = (x2, y2)
+                start_rc = get_rc(start_point)
+                end_rc = get_rc(end_point)
+                line.set_points([(x1, y1), (x2, y2)])
