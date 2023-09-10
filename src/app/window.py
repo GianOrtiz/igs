@@ -191,7 +191,7 @@ class Window:
     def clip(self):
         for obj in self.__normalized_display_file.objects():
             if obj.type() == ObjectType.LINE:
-                self.cohen_sutherland(obj)
+                self.liang_barsky(obj)
             elif obj.type() == ObjectType.POINT:
                 points = obj.points()
                 x, y = points[0]
@@ -280,3 +280,52 @@ class Window:
                 start_rc = get_rc(start_point)
                 end_rc = get_rc(end_point)
                 line.set_points([(x1, y1), (x2, y2)])
+
+    def liang_barsky(self, line: Line):
+        points = line.points()
+        x1, y1 = points[0]
+        x2, y2 = points[1]
+
+        p1 = -1 * (x2 - x1)
+        p2 = -1 * p1
+        p3 = -1 * (y2 - y1)
+        p4 = -1 * p3
+
+
+        q1 = x1 - (-1)
+        q2 = 1 - x1
+        q3 = y1 - (-1)
+        q4 = 1 - y1
+
+        negative_values = [0]
+        positive_values = [1]
+
+        if p1 != 0:
+            r1 = q1/p1
+            r2 = q2/p2
+            if p1 < 0:
+                negative_values.append(r1)
+                positive_values.append(r2)
+            else:
+                negative_values.append(r2)
+                positive_values.append(r1)
+
+        if p3 != 0:
+            r3 = q3/p3
+            r4 = q4/p4
+            if p3 < 0:
+                negative_values.append(r3)
+                positive_values.append(r4)
+            else:
+                negative_values.append(r4)
+                positive_values.append(r3)
+        
+        u1 = max(negative_values)
+        x1 = x1 + p2 * u1
+        y1 = y1 + p4 * u1
+        
+        u2 = min(positive_values)
+        x2 = x2 + p2 * u2
+        y2 = y2 + p4 * u2
+        
+        line.set_points([(x1, y1), (x2, y2)])
