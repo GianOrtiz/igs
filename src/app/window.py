@@ -3,6 +3,7 @@ from typing import Tuple
 from .graphic.object import Object, ObjectType
 from .display_file import DisplayFile
 from .graphic.line import Line
+from .graphic.wireframe import Wireframe
 
 ZOOM_FACTOR = 50
 MOVE_FACTOR = 50
@@ -329,3 +330,152 @@ class Window:
         y2 = y2 + p4 * u2
         
         line.set_points([(x1, y1), (x2, y2)])
+
+    def weiler_atherton(self, wireframe: Wireframe):
+        points = wireframe.points()
+        lines: list[Line] = []
+        prev_point = None
+        points_with_intersections = []
+        window_lines: list[Line] = [
+            Line((-1,-1), (1,-1)),
+            Line((1,-1), (1,1)),
+            Line((1,1), (-1,1)),
+            Line((-1,1), (-1,-1))
+        ]
+        for point in points:
+            if prev_point is not None:
+                line = Line(prev_point, point)
+                for window_line in window_lines:
+                    intersection_point = line_intersection(line, window_line)
+                    if intersection_point is not None:
+                        if is_between(prev_point, point, intersection_point) and \
+                            isBetween(window_line.start_point(), window_line.end_point(), intersection_point):
+                            points_with_intersections.append(intersection_point)
+                            break
+                points_with_intersections.append(point)
+            else:
+                points_with_intersections.append(point)
+            prev_point = point
+
+        prev_point = points_with_intersections[0]
+        point = points_with_intersections[1]
+        i = 1
+        wireframe_clipped_points = []
+        searching_for_reentering_point = False
+        searched_all_points = False
+        window_bounded_points = [
+            (-1, 1),
+            (1, 1),
+            (1, -1),
+            (-1, -1)
+        ]
+        while True:
+            if searched_all_points:
+                break
+
+            prev_point = points_with_intersections[i-1]
+            point = points_with_intersections[i]
+            
+            prev_x, prev_y = prev_point
+            x, y = point
+
+            if point == points_with_intersections[0]:
+                if x >= -1 and x <=1 and y >= -1 and y <= 1:
+                    wireframe_clipped_points.append(point)
+                break
+
+            if prev_x < -1 or prev_x > 1 or prev_y < -1 or prev_y > 1:
+                # Previous point is from outside window bounds.
+                if x >= -1 and x <=1 and y >= -1 and y <= 1:
+                    # Add this point to the clipped points.
+                    wireframe_clipped_points.append(point)
+            elif x < -1 or x > 1 or y < -1 or y > 1:
+                curr_x, curr_y = prev_x, prev_y
+
+                # Advance points until it reenters window and join the window borders.
+                while x < -1 or x > 1 or y < -1 or y > 1:
+                    i += 1
+                    prev_point = points_with_intersections[i-1]
+                    if i == len(points_with_intersections):
+                        i = i % len(points_with_intersections)
+                        searched_all_points = True
+                    point = points_with_intersections[i]
+                    x, y = point
+                
+                if curr_x == 1 and x == 1:
+                    if curr_y > y:
+                        if curr_y != -1:
+                            wireframe_clipped_points.append((1, -1))
+                        wireframe_clipped_points.append((-1, -1))
+                        wireframe_clipped_points.append((-1, 1))
+                        wireframe_clipped_points.append((1, 1))
+                elif curr_x == -1 and x == -1:
+                    if curr_y < y:
+                        if curr_y != 1:
+                            wireframe_clipped_points.append((-1, 1))
+                        wireframe_clipped_points.append((1, 1))
+                        wireframe_clipped_points.append((1, -1))
+                        wireframe_clipped_points.append((-1, -1))
+                elif curr_y == 1 and y == 1:
+                    if curr_x > x:
+                        if curr_x != 1:
+                            wireframe_clipped_points.append((1, 1))
+                        wireframe_clipped_points.append((1, -1))
+                        wireframe_clipped_points.append((-1, -1))
+                        wireframe_clipped_points.append((-1, 1))
+                elif curr_y == -1 and y == -1:
+                    if curr_x < x:
+                        if curr_x != -1:
+                            wireframe_clipped_points.append((-1, -1))
+                        wireframe_clipped_points.append((-1, 1))
+                        wireframe_clipped_points.append((1, 1))
+                        wireframe_clipped_points.append((1, -1))
+                else:
+                    j = -1
+                    while True:
+                        j += 1
+                        next_point = window_bounded_points[j]
+                        if (curr_x == 1 and x == 1) or (curr_x == -1 and x == -1) or (curr_y == 1 and y == 1) or (curr_y == -1 and y == -1):
+                            break
+                        wireframe_clipped_points.append(next_point)
+                        curr_x, curr_y = next_point
+                if point not in wireframe_clipped_points:
+                    wireframe_clipped_points.append(point)
+            else:
+                wireframe_clipped_points.append(point)
+                        
+            i += 1
+
+        wireframe.set_points(wireframe_clipped_points)
+
+def line_intersection(line1: Line, line2: Line):
+    xdiff = (line1.start_point()[0] - line1.end_point()[0], line2.start_point()[0] - line2.end_point()[0])
+    ydiff = (line1.start_point()[1] - line1.end_point()[1], line2.start_point()[1] - line2.end_point()[1])
+
+    def det(a, b):
+        return a[0] * b[1] - a[1] * b[0]
+
+    div = det(xdiff, ydiff)
+    if div == 0:
+        return None
+
+    d = (det(*line1), det(*line2))
+    x = det(d, xdiff) / div
+    y = det(d, ydiff) / div
+    return (x, y)
+
+def is_between(a, b, c):
+    crossproduct = (c[1] - a[1]) * (b[0] - a[0]) - (c[0] - a[0]) * (b[1] - a[1])
+
+    if abs(crossproduct) > 1e-6:
+        return False
+
+    dotproduct = (c[0] - a[0]) * (b[0] - a[0]) + (c[1] - a[1])*(b[1] - a[1])
+    if dotproduct < 0:
+        return False
+
+    squaredlengthba = (b[0] - a[0])*(b[0] - a[0]) + (b[1] - a[1])*(b[1] - a[1])
+    if dotproduct > squaredlengthba:
+        return False
+
+    return True
