@@ -1,4 +1,5 @@
 from .object import Object, ObjectType
+from .utils import transform
 
 class Wireframe(Object):
     def __init__(self, points, color='#000000'):

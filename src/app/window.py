@@ -201,7 +201,7 @@ class Window:
                 else:
                     obj.set_show(False)
             elif obj.type() == ObjectType.WIREFRAME:
-                pass
+                self.weiler_atherton(obj)
         
     def cohen_sutherland(self, line: Line):
         points = line.points()
@@ -349,7 +349,7 @@ class Window:
                     intersection_point = line_intersection(line, window_line)
                     if intersection_point is not None:
                         if is_between(prev_point, point, intersection_point) and \
-                            isBetween(window_line.start_point(), window_line.end_point(), intersection_point):
+                            is_between(window_line.start_point(), window_line.end_point(), intersection_point):
                             points_with_intersections.append(intersection_point)
                             break
                 points_with_intersections.append(point)
@@ -459,7 +459,7 @@ def line_intersection(line1: Line, line2: Line):
     if div == 0:
         return None
 
-    d = (det(*line1), det(*line2))
+    d = (det(*[line1.start_point(), line1.end_point()]), det(*[line2.start_point(), line2.end_point()]))
     x = det(d, xdiff) / div
     y = det(d, ydiff) / div
     return (x, y)
