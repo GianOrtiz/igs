@@ -110,7 +110,7 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
 
     def redraw_canvas(self):
         self.__drawing.clear_lines()
-        self.__viewport.draw(self.__drawing.paint)
+        self.__viewport.draw(self.__drawing.paint, self.__drawing.paint_filled_path)
         self.__render_objects_list()
 
     def on_add_object_clicked(self):

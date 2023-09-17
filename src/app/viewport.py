@@ -22,7 +22,7 @@ class Viewport:
     def window(self) -> Window:
         return self.__window
 
-    def draw(self, draw_line):
+    def draw(self, draw_line, draw_path):
         # Draw the limit of the viewport.
         draw_line((10, 10, 10, self.__y_max - 20, '#FF0000'))
         draw_line((10, self.__y_max - 20, self.__x_max - 20, self.__y_max - 20, '#FF0000'))
@@ -31,7 +31,7 @@ class Viewport:
         
         for obj in self.__window.normalized_display_file().objects():
             if obj.show():
-                obj.draw(draw_line, transform_coordinate=self.transform_coordinate)
+                obj.draw(draw_line, self.transform_coordinate, draw_path)
 
     def transform_coordinates(self, coordinates: list[tuple[float, float]]) -> list[tuple[float, float]]:
         transformed_coordinates = []

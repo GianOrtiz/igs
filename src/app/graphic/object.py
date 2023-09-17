@@ -37,7 +37,7 @@ class Object(ABC):
         pass
 
     @abstractmethod
-    def draw(self, draw_line, transform_coordinate):
+    def draw(self, draw_line, transform_coordinate, draw_path):
         pass
 
     @abstractmethod

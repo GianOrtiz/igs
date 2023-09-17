@@ -24,7 +24,7 @@ class Point(Object):
     def to_string(self):
         return 'Point - ' + self.id()
 
-    def draw(self, draw_line, transform_coordinate):
+    def draw(self, draw_line, transform_coordinate, draw_path):
         # Draws more than one point so we can see the point in the screen. This is done for
         # educational purposes only.
         p1 = transform_coordinate((self.__x, self.__y))

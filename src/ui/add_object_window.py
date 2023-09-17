@@ -11,6 +11,7 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__viewport = viewport
         self.__select_object_type = ObjectType.POINT
         self.__redraw_canvas = redraw_canvas
+        self.__should_fill_wireframe = False
 
         self.initUI()
 
@@ -21,10 +22,18 @@ class AddObjectWindow(widgets.QMainWindow):
         main_widget = widgets.QWidget(self)
         self.setCentralWidget(main_widget)
 
+        layout = widgets.QVBoxLayout()
+
         select_object_label = widgets.QLabel('Which object you want to create?')
         self.__radio_button_point = widgets.QRadioButton('Point')
+        self.__radio_button_point.toggle()
         self.__radio_button_line = widgets.QRadioButton('Line')
         self.__radio_button_wireframe = widgets.QRadioButton('Wireframe')
+
+        layout.addWidget(select_object_label)
+        layout.addWidget(self.__radio_button_point)
+        layout.addWidget(self.__radio_button_line)
+        layout.addWidget(self.__radio_button_wireframe)
 
         self.__radio_button_point.toggled.connect(self.on_clicked_point)
         self.__radio_button_line.toggled.connect(self.on_clicked_line)
@@ -39,7 +48,6 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__submit_button = widgets.QPushButton('Add')
         self.__submit_button.clicked.connect(self.__add_object)
 
-        layout = widgets.QVBoxLayout()
         layout.addWidget(select_object_label)
         layout.addWidget(self.__radio_button_point)
         layout.addWidget(self.__radio_button_line)
@@ -48,18 +56,51 @@ class AddObjectWindow(widgets.QMainWindow):
         layout.addWidget(self.__color_input)
         layout.addWidget(insert_coordinates_label)
         layout.addWidget(self.__coordinates_input)
+
+        self.input_area = widgets.QWidget()
+        self.input_layout = widgets.QFormLayout()
+        self.input_area.setLayout(self.input_layout)
+        layout.addWidget(self.input_area)
+
         layout.addWidget(self.__submit_button)
 
         main_widget.setLayout(layout)
 
     def on_clicked_point(self):
         self.__select_object_type = ObjectType.POINT
+        self.clear_input_area()
 
     def on_clicked_line(self):
         self.__select_object_type = ObjectType.LINE
+        self.clear_input_area()
+
+    def clear_input_area(self):
+        while self.input_layout.count():
+            child = self.input_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
 
     def on_clicked_wireframe(self):
         self.__select_object_type = ObjectType.WIREFRAME
+        self.clear_input_area()
+
+        self.should_fill_wireframe_label = widgets.QLabel("Should fill the Wireframe?")
+        self.should_fill_wireframe_true = widgets.QRadioButton('True')
+        self.should_fill_wireframe_false = widgets.QRadioButton('False')
+        self.should_fill_wireframe_false.toggle()
+        self.input_layout.addWidget(self.should_fill_wireframe_label)
+        self.should_fill_wireframe_true.toggled.connect(self.on_should_fill_wireframe)
+        self.should_fill_wireframe_false.toggled.connect(self.on_should_not_fill_wireframe)
+        self.input_layout.addWidget(self.should_fill_wireframe_true)
+        self.input_layout.addWidget(self.should_fill_wireframe_false)
+
+    def on_should_fill_wireframe(self, enabled):
+        if enabled:
+            self.__should_fill_wireframe = True
+
+    def on_should_not_fill_wireframe(self, enabled):
+        if enabled:
+            self.__should_fill_wireframe = False
 
     def __add_object(self):
         color = self.__color_input.text()
@@ -77,7 +118,7 @@ class AddObjectWindow(widgets.QMainWindow):
         elif self.__select_object_type == ObjectType.WIREFRAME:
             if len(coordinates) < 1:
                 raise "Wireframe type object requires at least one coordinate"
-            self.__viewport.window().add_object(Wireframe(coordinates, color))
+            self.__viewport.window().add_object(Wireframe(coordinates, color, self.__should_fill_wireframe))
 
         self.__redraw_canvas()
         self.close()
