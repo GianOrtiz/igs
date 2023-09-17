@@ -183,13 +183,13 @@ class TransformObjectWindow(widgets.QMainWindow):
             self.__object.rotate_world_center(angle)
         else:
             try:
-                x = int(self.__x_translate_input.text())
+                x = int(self.__rotate_point_x_input.text())
             except:
                 x = 0
             
             try:
-                y = int(self.__y_translate_input.text())
+                y = int(self.__rotate_point_y_input.text())
             except:
                 y = 0
 
-            self.__object.rotate_point(angle, (x, y))
+            self.__object.rotate_point((x, y), angle)

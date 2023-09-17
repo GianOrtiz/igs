@@ -150,7 +150,7 @@ class Object(ABC):
                 [0, 1, 0],
                 [dx, dy, 1],
             ]
-            transformed_point = transform(point, [
+            transformed_point = transform(obj_point, [
                 translate_to_center_matrix,
                 rotate_matrix,
                 translate_to_point_matrix,
