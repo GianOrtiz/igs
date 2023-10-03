@@ -3,6 +3,7 @@ from typing import Tuple
 from .graphic.object import Object, ObjectType
 from .display_file import DisplayFile
 from .graphic.line import Line
+from .graphic.curve import Curve
 from .graphic.wireframe import Wireframe
 
 ZOOM_FACTOR = 50
@@ -202,7 +203,18 @@ class Window:
                     obj.set_show(False)
             elif obj.type() == ObjectType.WIREFRAME:
                 self.weiler_atherton(obj)
+            elif obj.type() == ObjectType.CURVE:
+                self.clip_curve(obj)
         
+    def clip_curve(self, curve: Curve):
+        clipped_points = []
+        curve_points = curve.points()
+        for point in curve_points:
+            x, y = point
+            if x <= 1 and x >= -1 and y <= 1 and y >= -1:
+                clipped_points.append(point)
+        curve.set_points(clipped_points)
+
     def cohen_sutherland(self, line: Line):
         points = line.points()
 
