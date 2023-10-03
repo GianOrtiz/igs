@@ -4,6 +4,7 @@ from app.graphic.object import ObjectType
 from app.graphic.line import Line
 from app.graphic.point import Point
 from app.graphic.wireframe import Wireframe
+from app.graphic.curve import Curve
 
 class AddObjectWindow(widgets.QMainWindow):
     def __init__(self, viewport, redraw_canvas):
@@ -29,15 +30,18 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__radio_button_point.toggle()
         self.__radio_button_line = widgets.QRadioButton('Line')
         self.__radio_button_wireframe = widgets.QRadioButton('Wireframe')
+        self.__radio_button_curve = widgets.QRadioButton('Curve')
 
         layout.addWidget(select_object_label)
         layout.addWidget(self.__radio_button_point)
         layout.addWidget(self.__radio_button_line)
         layout.addWidget(self.__radio_button_wireframe)
+        layout.addWidget(self.__radio_button_curve)
 
         self.__radio_button_point.toggled.connect(self.on_clicked_point)
         self.__radio_button_line.toggled.connect(self.on_clicked_line)
         self.__radio_button_wireframe.toggled.connect(self.on_clicked_wireframe)
+        self.__radio_button_curve.toggled.connect(self.on_clicked_curve)
 
         color_label = widgets.QLabel('Which color to use? (Write hexadecimal as in #000000, black will be used as default)')
         self.__color_input = widgets.QLineEdit(self)
@@ -80,6 +84,10 @@ class AddObjectWindow(widgets.QMainWindow):
             if child.widget():
                 child.widget().deleteLater()
 
+    def on_clicked_curve(self):
+        self.__select_object_type = ObjectType.CURVE
+        self.clear_input_area()
+
     def on_clicked_wireframe(self):
         self.__select_object_type = ObjectType.WIREFRAME
         self.clear_input_area()
@@ -119,6 +127,10 @@ class AddObjectWindow(widgets.QMainWindow):
             if len(coordinates) < 1:
                 raise "Wireframe type object requires at least one coordinate"
             self.__viewport.window().add_object(Wireframe(coordinates, color, self.__should_fill_wireframe))
+        elif self.__select_object_type == ObjectType.CURVE:
+            if len(coordinates) < 4:
+                raise "Beziér curve requires four coordinate points"
+            self.__viewport.window().add_object(Curve(coordinates, color))
 
         self.__redraw_canvas()
         self.close()

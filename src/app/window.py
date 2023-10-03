@@ -432,7 +432,7 @@ class Window:
                         wireframe_clipped_points.append((1, -1))
                 else:
                     j = -1
-                    while True:
+                    while j != len(window_bounded_points)-1:
                         j += 1
                         next_point = window_bounded_points[j]
                         if (curr_x == 1 and x == 1) or (curr_x == -1 and x == -1) or (curr_y == 1 and y == 1) or (curr_y == -1 and y == -1):

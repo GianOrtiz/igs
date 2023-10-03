@@ -9,6 +9,7 @@ class ObjectType(Enum):
     POINT = 1
     LINE = 2
     WIREFRAME = 3
+    CURVE = 4
 
 class Object(ABC):
     def __init__(self, type, color):
