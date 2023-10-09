@@ -2,7 +2,7 @@ import math
 from typing import Tuple
 from .graphic.object import Object, ObjectType
 from .display_file import DisplayFile
-from .graphic.line import Line
+from .graphic.line import Line, LineClippingAlgorithm
 from .graphic.curve import BSplineForwardDifferencesCurve
 from .graphic.wireframe import Wireframe
 
@@ -193,7 +193,10 @@ class Window:
     def clip(self):
         for obj in self.__normalized_display_file.objects():
             if obj.type() == ObjectType.LINE:
-                self.liang_barsky(obj)
+                if obj.clipping_algorithm() == LineClippingAlgorithm.LIANG_BARSKY:
+                    self.liang_barsky(obj)
+                else:
+                    self.cohen_sutherland(obj)
             elif obj.type() == ObjectType.POINT:
                 points = obj.points()
                 x, y = points[0]

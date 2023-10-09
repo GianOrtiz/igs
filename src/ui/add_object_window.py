@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 import PyQt5.QtWidgets as widgets
 from app.graphic.object import ObjectType
-from app.graphic.line import Line
+from app.graphic.line import Line, LineClippingAlgorithm
 from app.graphic.point import Point
 from app.graphic.wireframe import Wireframe
 from app.graphic.curve import BSplineForwardDifferencesCurve, BezierCurve
@@ -13,6 +13,8 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__select_object_type = ObjectType.POINT
         self.__redraw_canvas = redraw_canvas
         self.__should_fill_wireframe = False
+        self.__curve_type = 'Bezier'
+        self.__line_clipping_algorithm = LineClippingAlgorithm.LIANG_BARSKY
 
         self.initUI()
 
@@ -78,6 +80,24 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__select_object_type = ObjectType.LINE
         self.clear_input_area()
 
+        select_line_clipping = widgets.QLabel('Which kind of clipping algorithm you want to use?')
+        self.__radio_button_liang_barsky = widgets.QRadioButton('Liang Barsky')
+        self.__radio_button_liang_barsky.toggle()
+        self.__radio_button_cohen_sutherland = widgets.QRadioButton('Cohen Sutherland')
+        
+        self.input_layout.addWidget(select_line_clipping)
+        self.input_layout.addWidget(self.__radio_button_liang_barsky)
+        self.input_layout.addWidget(self.__radio_button_cohen_sutherland)
+        
+        self.__radio_button_liang_barsky.toggled.connect(self.on_clicked_liang_barsky)
+        self.__radio_button_cohen_sutherland.toggled.connect(self.on_clicked_cohen_sutherland)
+
+    def on_clicked_liang_barsky(self):
+        self.__line_clipping_algorithm = LineClippingAlgorithm.LIANG_BARSKY
+    
+    def on_clicked_cohen_sutherland(self):
+        self.__line_clipping_algorithm = LineClippingAlgorithm.COHEN_SUTHERLAND
+
     def clear_input_area(self):
         while self.input_layout.count():
             child = self.input_layout.takeAt(0)
@@ -136,7 +156,7 @@ class AddObjectWindow(widgets.QMainWindow):
         if self.__select_object_type == ObjectType.LINE:
             if len(coordinates) != 2:
                 raise "Line type object requires exactly two coordinates"
-            self.__viewport.window().add_object(Line(coordinates[0], coordinates[1], color))
+            self.__viewport.window().add_object(Line(coordinates[0], coordinates[1], color, self.__line_clipping_algorithm))
         elif self.__select_object_type == ObjectType.POINT:
             if len(coordinates) != 2:
                 raise "Point type object requires exactly one coordinate"

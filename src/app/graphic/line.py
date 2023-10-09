@@ -1,12 +1,21 @@
 from .object import Object, ObjectType
 from .utils import transform
+from enum import Enum
+
+class LineClippingAlgorithm:
+    LIANG_BARSKY = 1
+    COHEN_SUTHERLAND = 2
 
 class Line(Object):
-    def __init__(self, start_point, end_point, color='#000000'):
+    def __init__(self, start_point, end_point, color='#000000', clipping_algorithm =LineClippingAlgorithm.LIANG_BARSKY):
         super().__init__(ObjectType.LINE, color)
         self.__start_point = start_point
         self.__end_point = end_point
+        self.__clipping_algorithm = clipping_algorithm
     
+    def clipping_algorithm(self) -> LineClippingAlgorithm:
+        return self.__clipping_algorithm
+
     def points(self):
         return [
             self.__start_point,
