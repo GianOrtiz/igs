@@ -3,7 +3,7 @@ from typing import Tuple
 from .graphic.object import Object, ObjectType
 from .display_file import DisplayFile
 from .graphic.line import Line
-from .graphic.curve import Curve
+from .graphic.curve import BSplineForwardDifferencesCurve
 from .graphic.wireframe import Wireframe
 
 ZOOM_FACTOR = 50
@@ -206,7 +206,7 @@ class Window:
             elif obj.type() == ObjectType.CURVE:
                 self.clip_curve(obj)
         
-    def clip_curve(self, curve: Curve):
+    def clip_curve(self, curve):
         clipped_points = []
         curve_points = curve.points()
         for point in curve_points:

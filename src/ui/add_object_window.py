@@ -4,7 +4,7 @@ from app.graphic.object import ObjectType
 from app.graphic.line import Line
 from app.graphic.point import Point
 from app.graphic.wireframe import Wireframe
-from app.graphic.curve import Curve
+from app.graphic.curve import BSplineForwardDifferencesCurve, BezierCurve
 
 class AddObjectWindow(widgets.QMainWindow):
     def __init__(self, viewport, redraw_canvas):
@@ -88,6 +88,24 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__select_object_type = ObjectType.CURVE
         self.clear_input_area()
 
+        select_curve_type = widgets.QLabel('Which kind of curve you want to use?')
+        self.__radio_button_bezier = widgets.QRadioButton('Bezier')
+        self.__radio_button_bezier.toggle()
+        self.__radio_button_bspline_curve = widgets.QRadioButton('BSpline with Forward Differences')
+        
+        self.input_layout.addWidget(select_curve_type)
+        self.input_layout.addWidget(self.__radio_button_bezier)
+        self.input_layout.addWidget(self.__radio_button_bspline_curve)
+        
+        self.__radio_button_bezier.toggled.connect(self.on_clicked_bezier)
+        self.__radio_button_bspline_curve.toggled.connect(self.on_clicked_bspline)
+
+    def on_clicked_bezier(self):
+        self.__curve_type = 'Bezier'
+
+    def on_clicked_bspline(self):
+        self.__curve_type = 'BSpline'        
+
     def on_clicked_wireframe(self):
         self.__select_object_type = ObjectType.WIREFRAME
         self.clear_input_area()
@@ -129,8 +147,12 @@ class AddObjectWindow(widgets.QMainWindow):
             self.__viewport.window().add_object(Wireframe(coordinates, color, self.__should_fill_wireframe))
         elif self.__select_object_type == ObjectType.CURVE:
             if len(coordinates) < 4:
-                raise "Beziér curve requires four coordinate points"
-            self.__viewport.window().add_object(Curve(coordinates, color))
+                raise "Curve requires four coordinate points"
+
+            if self.__curve_type == 'Bezier':
+                self.__viewport.window().add_object(BezierCurve(coordinates, color))
+            elif self.__curve_type == 'BSpline':
+                self.__viewport.window().add_object(BSplineForwardDifferencesCurve(coordinates, color))
 
         self.__redraw_canvas()
         self.close()
