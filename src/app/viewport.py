@@ -41,5 +41,8 @@ class Viewport:
 
     def transform_coordinate(self, coordinate: tuple[float, float]) -> tuple[float, float]:
         x = ((coordinate[0] - (-1))/(1 - (-1))) * ((self.__x_max - 10) - (self.__x_min + 10)) + 10
-        y = (1 - ((coordinate[1] - (-1))/(1 - (-1)))) * ((self.__y_max + 10) - (self.__y_min + 10)) - 20
+        if coordinate[1] > 0:
+            y = (1 - ((coordinate[1] - (-1))/(1 - (-1)))) * ((self.__y_max + 10) - (self.__y_min + 10)) + 10
+        else:
+            y = (1 - ((coordinate[1] - (-1))/(1 - (-1)))) * ((self.__y_max + 10) - (self.__y_min + 10)) - 20
         return (x, y)
