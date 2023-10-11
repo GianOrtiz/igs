@@ -38,9 +38,34 @@ class Point3D:
         ]
         self.x, self.y, self.z = transform_3d([self.x, self.y, self.z], [translate_to_center_matrix, scale_matrix, translate_from_center_matrix])
 
-    def rotate_from_axis(self, theta: float, point: Point3D):
-        # Define a point in the axis.
+    def rotate_x(self, theta: float):
+        rotation_x = [
+            [1, 0, 0, 0],
+            [0, math.cos(theta), math.sin(theta), 0],
+            [0, -1 * math.sin(theta), math.cos(theta), 0],
+            [0, 0, 0, 1]
+        ]
+        self.x, self.y, self.z = transform_3d([self.x, self.y, self.z], [rotation_x])
 
+    def rotate_y(self, theta: float):
+        rotation_y = [
+            [math.cos(theta), 0, -1 * math.sin(theta), 0],
+            [0, 1, 0, 0],
+            [math.sin(theta), 0, math.cos(theta), 0],
+            [0, 0, 0, 1]
+        ]
+        self.x, self.y, self.z = transform_3d([self.x, self.y, self.z], [rotation_y])
+
+    def rotate_z(self, theta: float):
+        rotation_z = [
+            [math.cos(theta), math.sin(theta), 0, 0],
+            [-1 * math.sin(theta), math.cos(theta), 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ]
+        self.x, self.y, self.z = transform_3d([self.x, self.y, self.z], [rotation_z])
+
+    def rotate_from_axis(self, theta: float, point: Point3D):
         # Translate the point to the center of world.
         translate_to_center_matrix = [
             [1, 0, 0, 0],
