@@ -1,7 +1,11 @@
 import math
+import numpy as np
+
 from typing import Tuple
 from .graphic.object import Object, ObjectType
 from .display_file import DisplayFile
+from .graphic.object3d import Object3D, Segment
+from .graphic.point3d import Point3D
 from .graphic.line import Line, LineClippingAlgorithm
 from .graphic.curve import BSplineForwardDifferencesCurve
 from .graphic.wireframe import Wireframe
@@ -20,9 +24,13 @@ class Window:
         window_center = self.__calculate_window_center()
         self.__window_center_x: float = window_center[0]
         self.__window_center_y: float = window_center[1]
+        self.__view_reference_point = (window_center[0], window_center[1], 0)
+        self.__view_point_normal = (window_center[0] + 100, window_center[1], 100)
         self.__display_file: DisplayFile = display_file
+        self.__2d_display_file: DisplayFile = DisplayFile()
         self.__normalized_display_file: DisplayFile = DisplayFile()
         self.generate_normalized_display_file()
+        self.ortogonal_projection()
     
     def x_max(self) -> float:
         return self.__x_max
@@ -42,6 +50,7 @@ class Window:
     def display_file(self) -> DisplayFile:
         return self.__display_file
 
+    # Change here for 3D object.
     def add_object(self, obj: Object):
         self.__display_file.add_object(obj)
         self.add_normalized_object(obj)
@@ -66,6 +75,7 @@ class Window:
         self.clip()
 
     def move_left(self):
+        # TODO: move the vrp together.
         y_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
         x_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
         self.__x_max -= x_move_factor
@@ -79,6 +89,7 @@ class Window:
         self.clip()
     
     def move_right(self):
+        # TODO: move the vrp together.
         y_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
         x_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
         self.__x_max += x_move_factor
@@ -92,6 +103,7 @@ class Window:
         self.clip()
     
     def move_bottom(self):
+        # TODO: move the vrp together.
         x_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
         y_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
         self.__y_max = self.__y_max - y_move_factor
@@ -105,6 +117,7 @@ class Window:
         self.clip()
     
     def move_top(self):
+        # TODO: move the vrp together.
         x_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
         y_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
         self.__y_max = self.__y_max + y_move_factor
@@ -118,16 +131,54 @@ class Window:
         self.clip()
 
     def rotate_left(self):
+        # TODO: move the vrp together.
         self.__rotation = self.__rotation + ROTATION_FACTOR
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
         self.clip()
 
     def rotate_right(self):
+        # TODO: move the vrp together.
         self.__rotation = self.__rotation - ROTATION_FACTOR
         self.__normalized_display_file = DisplayFile()
         self.generate_normalized_display_file()
         self.clip()
+
+    def ortogonal_projection(self):
+        vrp_x, vrp_y, vrp_z = self.__view_reference_point
+        translation_to_center_matrix = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [-1 * vrp_x, -1 * vrp_y, -1 * vrp_z, 1]
+        ]
+
+        vpn = np.array(self.__view_point_normal)
+        vpn /= np.linalg.norm(vpn)
+        theta_x = np.arctan2(vpn[1], vpn[0])
+        theta_y = np.arctan2(vpn[2], np.sqrt(vpn[0]**2 + vpn[1]**2))
+        rotation_x = [
+            [1, 0, 0, 0],
+            [0, math.cos(theta_x), math.sin(theta_x), 0],
+            [0, -1 * math.sin(theta_x), math.cos(theta_x), 0],
+            [0, 0, 0, 1]
+        ]
+        rotation_y = [
+            [math.cos(theta_y), 0, -1 * math.sin(theta_y), 0],
+            [0, 1, 0, 0],
+            [math.sin(theta_y), 0, math.cos(theta_y), 0],
+            [0, 0, 0, 1]
+        ]
+        transformations = [
+            translation_to_center_matrix,
+            rotation_x,
+            rotation_y
+        ]
+        display_file = DisplayFile()
+        objects = [Object3D([Segment(Point3D(100, 100, 50), Point3D(50, 50, 10))])]
+        for obj in objects:
+            new_obj = obj.from_transformations(transformations)
+            display_file.add_object(new_obj)
 
     def generate_normalized_display_file(self):
         self.__normalized_display_file = DisplayFile()

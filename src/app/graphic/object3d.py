@@ -1,4 +1,4 @@
-from .point import Point3D
+from .point3d import Point3D
 from .utils import transform_3d
 
 class Segment:
@@ -7,7 +7,7 @@ class Segment:
         self.b = b
 
 class Object3D:
-    def __init__(self, segments: Segment[]):
+    def __init__(self, segments: list[Segment]):
         self.segments = segments
 
     def center(self) -> tuple[float]:
@@ -54,3 +54,12 @@ class Object3D:
         for segment in self.segments:
             segment.a.rotate_z(theta)
             segment.b.rotate_z(theta)
+
+    def from_transformations(self, transformations: list[list[float]]):
+        segments: list[Segment] = []
+        for s in self.segments:
+            segment = Segment(s.a, s.b)
+            segments.append(segment)
+            segment.a.transform(transformations)
+            segment.b.transform(transformations)
+        return Object3D(segments)

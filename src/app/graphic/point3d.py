@@ -1,5 +1,7 @@
 import math
 
+from .utils import transform_3d
+
 class Point3D:
     def __init__(self, x: float, y: float, z: float, color='#000000'):
         self.x = x
@@ -65,7 +67,10 @@ class Point3D:
         ]
         self.x, self.y, self.z = transform_3d([self.x, self.y, self.z], [rotation_z])
 
-    def rotate_from_axis(self, theta: float, point: Point3D):
+    def transform(self, transformations: list[list[float]]):
+        self.x, self.y, self.z = transform_3d([self.x, self.y, self.z], transformations)
+
+    def rotate_from_axis(self, theta: float, point):
         # Translate the point to the center of world.
         translate_to_center_matrix = [
             [1, 0, 0, 0],
