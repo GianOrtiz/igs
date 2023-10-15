@@ -3,6 +3,8 @@ import PyQt5.QtWidgets as widgets
 from app.graphic.object import ObjectType
 from app.graphic.line import Line, LineClippingAlgorithm
 from app.graphic.point import Point
+from app.graphic.object3d import Object3D, Segment
+from app.graphic.point3d import Point3D
 from app.graphic.wireframe import Wireframe
 from app.graphic.curve import BSplineForwardDifferencesCurve, BezierCurve
 
@@ -156,15 +158,28 @@ class AddObjectWindow(widgets.QMainWindow):
         if self.__select_object_type == ObjectType.LINE:
             if len(coordinates) != 2:
                 raise "Line type object requires exactly two coordinates"
-            self.__viewport.window().add_object(Line(coordinates[0], coordinates[1], color, self.__line_clipping_algorithm))
+            start_point = Point3D(coordinates[0][0], coordinates[0][1], coordinates[0][2])
+            end_point = Point3D(coordinates[1][0], coordinates[1][1], coordinates[1][2])
+            segment = Segment(start_point, end_point)
+            # TODO: add clipping algorithm
+            self.__viewport.window().add_object(Object3D([segment], ObjectType.LINE, color))
         elif self.__select_object_type == ObjectType.POINT:
-            if len(coordinates) != 2:
+            if len(coordinates) != 3:
                 raise "Point type object requires exactly one coordinate"
-            self.__viewport.window().add_object(Point(coordinates[0], coordinates[1], color))
+            point = Point3D(coordinates[0], coordinates[1], coordinates[2])
+            segment = Segment(point, point)
+            self.__viewport.window().add_object(Object3D([segment], ObjectType.POINT, color))
         elif self.__select_object_type == ObjectType.WIREFRAME:
             if len(coordinates) < 1:
                 raise "Wireframe type object requires at least one coordinate"
-            self.__viewport.window().add_object(Wireframe(coordinates, color, self.__should_fill_wireframe))
+            last_point = None
+            segments: list[Segment] = []
+            for coordinate in coordinates:
+                point = Point3D(coordinate[0], coordinate[1], coordinate[2])
+                if last_point is not None:
+                    segments.append(Segment(last_point, point))
+                last_point = point
+            self.__viewport.window().add_object(Point3D(segments, ObjectType.WIREFRAME, color))
         elif self.__select_object_type == ObjectType.CURVE:
             if len(coordinates) < 4:
                 raise "Curve requires four coordinate points"

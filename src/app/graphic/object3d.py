@@ -1,5 +1,8 @@
+import uuid
+
 from .point3d import Point3D
 from .utils import transform_3d
+from .object import ObjectType
 
 class Segment:
     def __init__(self, a: Point3D, b: Point3D):
@@ -7,8 +10,19 @@ class Segment:
         self.b = b
 
 class Object3D:
-    def __init__(self, segments: list[Segment]):
+    def __init__(self, segments: list[Segment], type: ObjectType, color='#000000'):
         self.segments = segments
+        self.type = ObjectType.POINT
+        self.color = color
+        self.id =  uuid.uuid4().hex
+
+    def to_string(self):
+        if self.type == ObjectType.POINT:
+            return 'Point - ' + self.id
+        elif self.type == ObjectType.LINE:
+            return 'Line - ' + self.id
+        elif self.type == ObjectType.WIREFRAME:
+            return 'Wireframe - ' + self.id
 
     def center(self) -> tuple[float]:
         sum_x = 0
@@ -62,4 +76,11 @@ class Object3D:
             segments.append(segment)
             segment.a.transform(transformations)
             segment.b.transform(transformations)
-        return Object3D(segments)
+        return Object3D(segments, self.color, self.type)
+
+    def get_2d_coordinates(self):
+        coordinates = []
+        for segment in self.segments:
+            coordinates.append((segment.a.x, segment.a.y))
+            coordinates.append((segment.b.x, segment.b.y))
+        return coordinates

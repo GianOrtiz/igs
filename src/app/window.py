@@ -9,6 +9,7 @@ from .graphic.point3d import Point3D
 from .graphic.line import Line, LineClippingAlgorithm
 from .graphic.curve import BSplineForwardDifferencesCurve
 from .graphic.wireframe import Wireframe
+from .graphic.point import Point
 
 ZOOM_FACTOR = 50
 MOVE_FACTOR = 50
@@ -24,13 +25,12 @@ class Window:
         window_center = self.__calculate_window_center()
         self.__window_center_x: float = window_center[0]
         self.__window_center_y: float = window_center[1]
-        self.__view_reference_point = (window_center[0], window_center[1], 0)
+        self.__view_reference_point = (window_center[0], window_center[1], 100)
         self.__view_point_normal = (window_center[0] + 100, window_center[1], 100)
         self.__display_file: DisplayFile = display_file
         self.__2d_display_file: DisplayFile = DisplayFile()
         self.__normalized_display_file: DisplayFile = DisplayFile()
         self.generate_normalized_display_file()
-        self.ortogonal_projection()
     
     def x_max(self) -> float:
         return self.__x_max
@@ -53,7 +53,8 @@ class Window:
     # Change here for 3D object.
     def add_object(self, obj: Object):
         self.__display_file.add_object(obj)
-        self.add_normalized_object(obj)
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
         self.clip()
 
     def zoom_out(self):
@@ -153,7 +154,7 @@ class Window:
             [-1 * vrp_x, -1 * vrp_y, -1 * vrp_z, 1]
         ]
 
-        vpn = np.array(self.__view_point_normal)
+        vpn = np.array(self.__view_reference_point)
         vpn /= np.linalg.norm(vpn)
         theta_x = np.arctan2(vpn[1], vpn[0])
         theta_y = np.arctan2(vpn[2], np.sqrt(vpn[0]**2 + vpn[1]**2))
@@ -174,11 +175,18 @@ class Window:
             rotation_x,
             rotation_y
         ]
-        display_file = DisplayFile()
-        objects = [Object3D([Segment(Point3D(100, 100, 50), Point3D(50, 50, 10))])]
-        for obj in objects:
+        for obj in self.__display_file.objects():
             new_obj = obj.from_transformations(transformations)
-            display_file.add_object(new_obj)
+            points = new_obj.get_2d_coordinates()
+            if new_obj.type == ObjectType.POINT:
+                point = Point(points[0][0], points[0][1], new_obj.color)
+                self.__2d_display_file.add_object(point)
+            elif new_obj.type == ObjectType.LINE:
+                line = Line(points[0], points[1], color)
+                self.__2d_display_file.add_object(line)
+            elif new_obj.type == ObjectType.WIREFRAME:
+                wireframe = Wireframe(points, color)
+                self.__2d_display_file.add_object(wireframe) 
 
     def generate_normalized_display_file(self):
         self.__normalized_display_file = DisplayFile()
@@ -203,7 +211,7 @@ class Window:
             [0, 0, 1]
         ]
 
-        for obj in self.__display_file.objects():
+        for obj in self.__2d_display_file.objects():
             normalized_obj = obj.object_from_transformation([translate_to_center_matrix, rotate_matrix, scale_to_normalized_matrix])
             self.__normalized_display_file.add_object(normalized_obj)
 

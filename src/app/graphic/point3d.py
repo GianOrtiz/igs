@@ -3,7 +3,7 @@ import math
 from .utils import transform_3d
 
 class Point3D:
-    def __init__(self, x: float, y: float, z: float, color='#000000'):
+    def __init__(self, x: float, y: float, z: float):
         self.x = x
         self.y = y
         self.z = z
