@@ -31,7 +31,10 @@ class Window:
         self.__2d_display_file: DisplayFile = DisplayFile()
         self.__normalized_display_file: DisplayFile = DisplayFile()
         self.generate_normalized_display_file()
-    
+        self.__rotation = 0
+        self.__pitch = 0
+        self.__roll = 0
+
     def x_max(self) -> float:
         return self.__x_max
     
@@ -50,7 +53,6 @@ class Window:
     def display_file(self) -> DisplayFile:
         return self.__display_file
 
-    # Change here for 3D object.
     def add_object(self, obj: Object):
         self.__display_file.add_object(obj)
         self.ortogonal_projection()
@@ -75,75 +77,123 @@ class Window:
         self.generate_normalized_display_file()
         self.clip()
 
-    def move_left(self):
-        # TODO: move the vrp together.
-        y_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
-        x_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
-        self.__x_max -= x_move_factor
-        self.__x_min -= x_move_factor
-        self.__window_center_x -= x_move_factor
-        self.__y_max -= y_move_factor
-        self.__y_min -= y_move_factor
-        self.__window_center_y -= y_move_factor
-        self.__normalized_display_file = DisplayFile()
-        self.generate_normalized_display_file()
-        self.clip()
-    
-    def move_right(self):
-        # TODO: move the vrp together.
-        y_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
-        x_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
-        self.__x_max += x_move_factor
-        self.__x_min += x_move_factor
-        self.__window_center_x += x_move_factor
-        self.__y_max += y_move_factor
-        self.__y_min += y_move_factor
-        self.__window_center_y += y_move_factor
-        self.__normalized_display_file = DisplayFile()
-        self.generate_normalized_display_file()
-        self.clip()
-    
-    def move_bottom(self):
-        # TODO: move the vrp together.
-        x_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
-        y_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
-        self.__y_max = self.__y_max - y_move_factor
-        self.__y_min = self.__y_min - y_move_factor
-        self.__window_center_y = self.__window_center_y - y_move_factor
-        self.__x_max = self.__x_max + x_move_factor
-        self.__x_min = self.__x_min + x_move_factor
-        self.__window_center_x = self.__window_center_x + x_move_factor
-        self.__normalized_display_file = DisplayFile()
-        self.generate_normalized_display_file()
-        self.clip()
-    
-    def move_top(self):
-        # TODO: move the vrp together.
-        x_move_factor = MOVE_FACTOR * math.sin(self.__rotation)
-        y_move_factor = MOVE_FACTOR * math.cos(self.__rotation)
-        self.__y_max = self.__y_max + y_move_factor
-        self.__y_min = self.__y_min + y_move_factor
-        self.__window_center_y = self.__window_center_y + y_move_factor
-        self.__x_max = self.__x_max - x_move_factor
-        self.__x_min = self.__x_min - x_move_factor
-        self.__window_center_x = self.__window_center_x - x_move_factor
-        self.__normalized_display_file = DisplayFile()
+    def move_forward(self, distance):
+        observer_direction = np.array(self.__view_point_normal) - np.array(self.__view_reference_point)
+        observer_direction = observer_direction / np.linalg.norm(observer_direction)
+        move_vector = distance * observer_direction
+        self.__view_reference_point += move_vector
+        self.__view_point_normal += move_vector
+        self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
-    def rotate_left(self):
-        # TODO: move the vrp together.
-        self.__rotation = self.__rotation + ROTATION_FACTOR
-        self.__normalized_display_file = DisplayFile()
+    def move_backward(self, distance):
+        observer_direction = np.array(self.__view_point_normal) - np.array(self.__view_reference_point)
+        observer_direction = observer_direction / np.linalg.norm(observer_direction)
+        move_vector = -distance * observer_direction
+        self.__view_reference_point += move_vector
+        self.__view_point_normal += move_vector
+        self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
-    def rotate_right(self):
-        # TODO: move the vrp together.
-        self.__rotation = self.__rotation - ROTATION_FACTOR
-        self.__normalized_display_file = DisplayFile()
+    def move_left(self, distance):
+        right_vector = np.cross(self.__view_point_normal, (0, 0, 1))
+        right_vector = right_vector / np.linalg.norm(right_vector)
+        move_vector = -distance * right_vector
+        self.__view_reference_point += move_vector
+        self.__view_point_normal += move_vector
+        self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
+
+    def move_right(self, distance):
+        right_vector = np.cross(self.__view_point_normal, (0, 0, 1))
+        right_vector = right_vector / np.linalg.norm(right_vector)
+        move_vector = distance * right_vector
+        self.__view_reference_point += move_vector
+        self.__view_point_normal += move_vector
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def move_up(self, distance):
+        up_vector = (0, 0, 1)
+        move_vector = distance * up_vector
+        self.__view_reference_point += move_vector
+        self.__view_point_normal += move_vector
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def move_down(self, distance):
+        up_vector = (0, 0, 1)
+        move_vector = -distance * up_vector
+        self.__view_reference_point += move_vector
+        self.__view_point_normal += move_vector
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def rotate_left(self, angle):
+        self.__rotation += angle
+        self.__update_view_direction()
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def rotate_right(self, angle):
+        self.__rotation -= angle
+        self.__update_view_direction()
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def rotate_up(self, angle):
+        self.__pitch += angle
+        self.__update_view_direction()
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def rotate_down(self, angle):
+        self.__pitch -= angle
+        self.__update_view_direction()
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def roll_left(self, angle):
+        self.__roll += angle
+        self.__update_view_direction()
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def roll_right(self, angle):
+        self.__roll -= angle
+        self.__update_view_direction()
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
+
+    def __update_view_direction(self):
+        yaw = self.__rotation
+        pitch = self.__pitch
+        roll = self.__roll
+
+        view_direction = [
+            math.cos(yaw) * math.cos(pitch),
+            math.sin(yaw) * math.cos(pitch),
+            math.sin(pitch)
+        ]
+
+        view_direction /= np.linalg.norm(view_direction)
+
+        self.__view_reference_point = self.__observer_position
+        self.__view_point_normal = [self.__observer_position[0] + view_direction[0],
+                                    self.__observer_position[1] + view_direction[1],
+                                    self.__observer_position[2] + view_direction[2]]
 
     def ortogonal_projection(self):
         vrp_x, vrp_y, vrp_z = self.__view_reference_point
