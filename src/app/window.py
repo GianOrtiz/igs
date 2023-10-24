@@ -10,6 +10,7 @@ from .graphic.line import Line, LineClippingAlgorithm
 from .graphic.curve import BSplineForwardDifferencesCurve
 from .graphic.wireframe import Wireframe
 from .graphic.point import Point
+from .graphic.utils import transform_3d
 
 ZOOM_FACTOR = 50
 MOVE_FACTOR = 50
@@ -77,123 +78,117 @@ class Window:
         self.generate_normalized_display_file()
         self.clip()
 
-    def move_forward(self, distance):
+    def move_forward(self):
         observer_direction = np.array(self.__view_point_normal) - np.array(self.__view_reference_point)
         observer_direction = observer_direction / np.linalg.norm(observer_direction)
-        move_vector = distance * observer_direction
-        self.__view_reference_point += move_vector
-        self.__view_point_normal += move_vector
+        move_vector = MOVE_FACTOR * observer_direction
+        for i in range(len(self.__view_reference_point)):
+            vrp = list(self.__view_reference_point)
+            vpn = list(self.__view_point_normal)
+            vrp[i] += move_vector[i]
+            vpn[i] += move_vector[i]
+            self.__view_point_normal = tuple(vpn)
+            self.__view_reference_point = tuple(vrp)
         self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
-    def move_backward(self, distance):
+    def move_backward(self):
         observer_direction = np.array(self.__view_point_normal) - np.array(self.__view_reference_point)
         observer_direction = observer_direction / np.linalg.norm(observer_direction)
-        move_vector = -distance * observer_direction
-        self.__view_reference_point += move_vector
-        self.__view_point_normal += move_vector
+        move_vector = -MOVE_FACTOR * observer_direction
+        for i in range(len(self.__view_reference_point)):
+            vrp = list(self.__view_reference_point)
+            vpn = list(self.__view_point_normal)
+            vrp[i] += move_vector[i]
+            vpn[i] += move_vector[i]
+            self.__view_point_normal = tuple(vpn)
+            self.__view_reference_point = tuple(vrp)
         self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
-    def move_left(self, distance):
+    def move_left(self):
         right_vector = np.cross(self.__view_point_normal, (0, 0, 1))
         right_vector = right_vector / np.linalg.norm(right_vector)
-        move_vector = -distance * right_vector
-        self.__view_reference_point += move_vector
-        self.__view_point_normal += move_vector
+        move_vector = -MOVE_FACTOR * right_vector
+        for i in range(len(self.__view_reference_point)):
+            vrp = list(self.__view_reference_point)
+            vpn = list(self.__view_point_normal)
+            vrp[i] += move_vector[i]
+            vpn[i] += move_vector[i]
+            self.__view_point_normal = tuple(vpn)
+            self.__view_reference_point = tuple(vrp)
         self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
-    def move_right(self, distance):
+    def move_right(self):
         right_vector = np.cross(self.__view_point_normal, (0, 0, 1))
         right_vector = right_vector / np.linalg.norm(right_vector)
-        move_vector = distance * right_vector
-        self.__view_reference_point += move_vector
-        self.__view_point_normal += move_vector
+        move_vector = MOVE_FACTOR * right_vector
+        for i in range(len(self.__view_reference_point)):
+            vrp = list(self.__view_reference_point)
+            vpn = list(self.__view_point_normal)
+            vrp[i] += move_vector[i]
+            vpn[i] += move_vector[i]
+            self.__view_point_normal = tuple(vpn)
+            self.__view_reference_point = tuple(vrp)
         self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
-    def move_up(self, distance):
-        up_vector = (0, 0, 1)
-        move_vector = distance * up_vector
-        self.__view_reference_point += move_vector
-        self.__view_point_normal += move_vector
+    def move_up(self):
+        vrp = list(self.__view_reference_point)
+        vpn = list(self.__view_point_normal)
+        vrp[2] += MOVE_FACTOR
+        vpn[2] += MOVE_FACTOR
+        self.__view_point_normal = tuple(vpn)
+        self.__view_reference_point = tuple(vrp)
         self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
-    def move_down(self, distance):
-        up_vector = (0, 0, 1)
-        move_vector = -distance * up_vector
-        self.__view_reference_point += move_vector
-        self.__view_point_normal += move_vector
+    def move_down(self):
+        vrp = list(self.__view_reference_point)
+        vpn = list(self.__view_point_normal)
+        vrp[2] -= MOVE_FACTOR
+        vpn[2] -= MOVE_FACTOR
+        self.__view_point_normal = tuple(vpn)
+        self.__view_reference_point = tuple(vrp)
         self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
-    def rotate_left(self, angle):
-        self.__rotation += angle
-        self.__update_view_direction()
-        self.ortogonal_projection()
-        self.generate_normalized_display_file()
-        self.clip()
-
-    def rotate_right(self, angle):
-        self.__rotation -= angle
-        self.__update_view_direction()
-        self.ortogonal_projection()
-        self.generate_normalized_display_file()
-        self.clip()
-
-    def rotate_up(self, angle):
-        self.__pitch += angle
-        self.__update_view_direction()
-        self.ortogonal_projection()
-        self.generate_normalized_display_file()
-        self.clip()
-
-    def rotate_down(self, angle):
-        self.__pitch -= angle
-        self.__update_view_direction()
-        self.ortogonal_projection()
-        self.generate_normalized_display_file()
-        self.clip()
-
-    def roll_left(self, angle):
-        self.__roll += angle
-        self.__update_view_direction()
-        self.ortogonal_projection()
-        self.generate_normalized_display_file()
-        self.clip()
-
-    def roll_right(self, angle):
-        self.__roll -= angle
-        self.__update_view_direction()
-        self.ortogonal_projection()
-        self.generate_normalized_display_file()
-        self.clip()
-
-    def __update_view_direction(self):
-        yaw = self.__rotation
-        pitch = self.__pitch
-        roll = self.__roll
-
-        view_direction = [
-            math.cos(yaw) * math.cos(pitch),
-            math.sin(yaw) * math.cos(pitch),
-            math.sin(pitch)
+    def rotate_left(self):
+        self.__rotation += ROTATION_FACTOR
+        rotation_y = [
+            [math.cos(ROTATION_FACTOR), 0, -1 * math.sin(ROTATION_FACTOR), 0],
+            [0, 1, 0, 0],
+            [math.sin(ROTATION_FACTOR), 0, math.cos(ROTATION_FACTOR), 0],
+            [0, 0, 0, 1]
         ]
+        vrp = list(self.__view_reference_point)
+        x, y, z = transform_3d([vrp[0], vrp[1], vrp[2]], [rotation_y])
+        self.__view_reference_point = (x, y, z)
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
 
-        view_direction /= np.linalg.norm(view_direction)
-
-        self.__view_reference_point = self.__observer_position
-        self.__view_point_normal = [self.__observer_position[0] + view_direction[0],
-                                    self.__observer_position[1] + view_direction[1],
-                                    self.__observer_position[2] + view_direction[2]]
+    def rotate_right(self):
+        self.__rotation -= ROTATION_FACTOR
+        rotation_y = [
+            [math.cos(-ROTATION_FACTOR), 0, -1 * math.sin(-ROTATION_FACTOR), 0],
+            [0, 1, 0, 0],
+            [math.sin(-ROTATION_FACTOR), 0, math.cos(-ROTATION_FACTOR), 0],
+            [0, 0, 0, 1]
+        ]
+        vrp = list(self.__view_reference_point)
+        x, y, z = transform_3d([vrp[0], vrp[1], vrp[2]], [rotation_y])
+        self.__view_reference_point = (x, y, z)
+        self.ortogonal_projection()
+        self.generate_normalized_display_file()
+        self.clip()
 
     def ortogonal_projection(self):
         vrp_x, vrp_y, vrp_z = self.__view_reference_point
