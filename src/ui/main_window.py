@@ -53,6 +53,12 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         left_direction_button = widgets.QPushButton('Left')
         left_direction_button.clicked.connect(self.__window_move_left)
         directional_buttons.addWidget(left_direction_button)
+        forward_direction_button = widgets.QPushButton('Forward')
+        forward_direction_button.clicked.connect(self.__window_move_forward)
+        directional_buttons.addWidget(forward_direction_button)
+        backward_direction_button = widgets.QPushButton('Backward')
+        backward_direction_button.clicked.connect(self.__window_move_backward)
+        directional_buttons.addWidget(backward_direction_button)
         left_layout.addLayout(directional_buttons)
 
         # Zoom buttons.
@@ -134,11 +140,19 @@ class InteractiveGraphicalSystem(widgets.QMainWindow):
         self.redraw_canvas()
     
     def __window_move_top(self):
-        self.__viewport.window().move_top()
+        self.__viewport.window().move_up()
         self.redraw_canvas()
 
     def __window_move_bottom(self):
-        self.__viewport.window().move_bottom()
+        self.__viewport.window().move_down()
+        self.redraw_canvas()
+
+    def __window_move_forward(self):
+        self.__viewport.window().move_forward()
+        self.redraw_canvas()
+    
+    def __window_move_backward(self):
+        self.__viewport.window().move_backward()
         self.redraw_canvas()
 
     def __render_objects_list(self):
