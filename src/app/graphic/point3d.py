@@ -16,7 +16,7 @@ class Point3D:
             [0, 0, 1, 0],
             [tx, ty, tz, 1]
         ]
-        self.x, self.y, self.z = transform_3d([self.x, self.y, self.z], translate_matrix)
+        self.x, self.y, self.z = transform_3d([self.x, self.y, self.z], [translate_matrix])
 
     def scale(self, scale: tuple[float]):
         sx, sy, sz = scale

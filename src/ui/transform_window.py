@@ -4,8 +4,7 @@ from PyQt5.QtCore import Qt
 import PyQt5.QtWidgets as widgets
 from app.graphic.object import ObjectType
 from app.graphic.line import Line
-from app.graphic.point import Point
-from app.graphic.wireframe import Wireframe
+from app.graphic.point3d import Point3D
 from enum import Enum
 
 class TransformationType(Enum):
@@ -76,8 +75,10 @@ class TransformObjectWindow(widgets.QMainWindow):
             self.clear_input_area()
             self.__x_factor_input = widgets.QLineEdit()
             self.__y_factor_input = widgets.QLineEdit()
+            self.__z_factor_input = widgets.QLineEdit()
             self.input_layout.addRow("X Factor:", self.__x_factor_input)
             self.input_layout.addRow("Y Factor:", self.__y_factor_input)
+            self.input_layout.addRow("Z Factor:", self.__z_factor_input)
 
     def show_rotate_area(self, enabled):
         if enabled:
@@ -105,8 +106,10 @@ class TransformObjectWindow(widgets.QMainWindow):
             self.point_area.setLayout(self.point_layout)
             self.__rotate_point_x_input = widgets.QLineEdit()
             self.__rotate_point_y_input = widgets.QLineEdit()
+            self.__rotate_point_z_input = widgets.QLineEdit()
             self.input_layout.addRow("Point X:", self.__rotate_point_x_input)
             self.input_layout.addRow("Point Y:", self.__rotate_point_y_input)
+            self.input_layout.addRow("Point Z:", self.__rotate_point_z_input)
 
     def rotate_from_center_world(self, enabled):
         if enabled:
@@ -127,8 +130,10 @@ class TransformObjectWindow(widgets.QMainWindow):
             self.clear_input_area()
             self.__x_translate_input = widgets.QLineEdit()
             self.__y_translate_input = widgets.QLineEdit()
+            self.__z_translate_input = widgets.QLineEdit()
             self.input_layout.addRow("X Translate:", self.__x_translate_input)
             self.input_layout.addRow("Y Translate:", self.__y_translate_input)
+            self.input_layout.addRow("Z Translate:", self.__z_translate_input)
 
     def degree_to_radians(self, angle):
         return angle * (math.pi / 180)
@@ -155,7 +160,12 @@ class TransformObjectWindow(widgets.QMainWindow):
         except:
             y = 1
 
-        self.__object.scale((x, y))
+        try:
+            z = int(self.__z_factor_input.text())
+        except:
+            z = 1
+
+        self.__object.scale((x, y, z))
 
     def translate(self):
         try:
@@ -168,7 +178,12 @@ class TransformObjectWindow(widgets.QMainWindow):
         except:
             y = 1
 
-        self.__object.translate((x, y))
+        try:
+            z = int(self.__z_translate_input.text())
+        except:
+            z = 1
+
+        self.__object.translate((x, y, z))
 
     def rotate(self):
         try:
@@ -178,9 +193,9 @@ class TransformObjectWindow(widgets.QMainWindow):
             angle = 0
 
         if self.__rotation_type == RotationType.FROM_CENTER_OF_OBJECT:
-            self.__object.rotate_center(angle)
+            self.__object.rotate_from_axis(angle, Point3D(0,0,0))
         elif self.__rotation_type == RotationType.FROM_CENTER_OF_WORLD:
-            self.__object.rotate_world_center(angle)
+            self.__object.rotate_y(angle)
         else:
             try:
                 x = int(self.__rotate_point_x_input.text())
@@ -192,4 +207,9 @@ class TransformObjectWindow(widgets.QMainWindow):
             except:
                 y = 0
 
-            self.__object.rotate_point((x, y), angle)
+            try:
+                z = int(self.__rotate_point_z_input.text())
+            except:
+                z = 0
+
+            self.__object.rotate_from_axis(angle, Point3D(x, y, z))

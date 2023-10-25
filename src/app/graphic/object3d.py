@@ -51,8 +51,8 @@ class Object3D:
     
     def rotate_from_axis(self, theta: float, point: Point3D):
         for segment in self.segments:
-            segment.a.rotate_from_axis(point)
-            segment.b.rotate_from_axis(point)
+            segment.a.rotate_from_axis(theta, point)
+            segment.b.rotate_from_axis(theta, point)
 
     def rotate_x(self, theta: float):
         for segment in self.segments:
