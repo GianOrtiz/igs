@@ -5,7 +5,6 @@ from typing import Tuple
 from .graphic.object import Object, ObjectType
 from .display_file import DisplayFile
 from .graphic.object3d import Object3D, Segment
-from .graphic.point3d import Point3D
 from .graphic.line import Line, LineClippingAlgorithm
 from .graphic.curve import BSplineForwardDifferencesCurve
 from .graphic.wireframe import Wireframe
@@ -66,6 +65,7 @@ class Window:
         self.__y_max = self.__y_max + ZOOM_FACTOR
         self.__y_min = self.__y_min - ZOOM_FACTOR
         self.__normalized_display_file = DisplayFile()
+        self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
     
@@ -75,6 +75,7 @@ class Window:
         self.__y_max = self.__y_max - ZOOM_FACTOR
         self.__y_min = self.__y_min + ZOOM_FACTOR
         self.__normalized_display_file = DisplayFile()
+        self.ortogonal_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -227,10 +228,10 @@ class Window:
                 point = Point(points[0][0], points[0][1], new_obj.color)
                 self.__2d_display_file.add_object(point)
             elif new_obj.type == ObjectType.LINE:
-                line = Line(points[0], points[1], color)
+                line = Line(points[0], points[1], new_obj.color)
                 self.__2d_display_file.add_object(line)
             elif new_obj.type == ObjectType.WIREFRAME:
-                wireframe = Wireframe(points, color)
+                wireframe = Wireframe(points, new_obj.color)
                 self.__2d_display_file.add_object(wireframe) 
 
     def generate_normalized_display_file(self):
@@ -555,7 +556,7 @@ class Window:
             else:
                 wireframe_clipped_points.append(point)
                         
-            i += 1
+            i = (i+1)%i
 
         wireframe.set_points(wireframe_clipped_points)
 

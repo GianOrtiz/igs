@@ -161,7 +161,6 @@ class AddObjectWindow(widgets.QMainWindow):
             start_point = Point3D(coordinates[0][0], coordinates[0][1], coordinates[0][2])
             end_point = Point3D(coordinates[1][0], coordinates[1][1], coordinates[1][2])
             segment = Segment(start_point, end_point)
-            # TODO: add clipping algorithm
             self.__viewport.window().add_object(Object3D([segment], ObjectType.LINE, color))
         elif self.__select_object_type == ObjectType.POINT:
             if len(coordinates) != 3:
@@ -179,7 +178,7 @@ class AddObjectWindow(widgets.QMainWindow):
                 if last_point is not None:
                     segments.append(Segment(last_point, point))
                 last_point = point
-            self.__viewport.window().add_object(Point3D(segments, ObjectType.WIREFRAME, color))
+            self.__viewport.window().add_object(Object3D(segments, ObjectType.WIREFRAME, color))
         elif self.__select_object_type == ObjectType.CURVE:
             if len(coordinates) < 4:
                 raise "Curve requires four coordinate points"

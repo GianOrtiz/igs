@@ -12,7 +12,7 @@ class Segment:
 class Object3D:
     def __init__(self, segments: list[Segment], type: ObjectType, color='#000000'):
         self.segments = segments
-        self.type = ObjectType.POINT
+        self.type = type
         self.color = color
         self.id =  uuid.uuid4().hex
 
@@ -76,7 +76,7 @@ class Object3D:
             segments.append(segment)
             segment.a.transform(transformations)
             segment.b.transform(transformations)
-        return Object3D(segments, self.color, self.type)
+        return Object3D(segments, self.type, self.color)
 
     def get_2d_coordinates(self):
         coordinates = []
