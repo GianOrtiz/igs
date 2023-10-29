@@ -84,3 +84,10 @@ class Object3D:
             coordinates.append((segment.a.x, segment.a.y))
             coordinates.append((segment.b.x, segment.b.y))
         return coordinates
+
+    def get_3d_coordinates(self):
+        coordinates = []
+        for segment in self.segments:
+            coordinates.append((segment.a.x, segment.a.y, segment.a.z))
+            coordinates.append((segment.b.x, segment.b.y, segment.b.z))
+        return coordinates

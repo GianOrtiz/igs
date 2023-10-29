@@ -32,8 +32,7 @@ class Window:
         self.__normalized_display_file: DisplayFile = DisplayFile()
         self.generate_normalized_display_file()
         self.__rotation = 0
-        self.__pitch = 0
-        self.__roll = 0
+        self.__cop = (window_center[0], window_center[1], -100)
 
     def x_max(self) -> float:
         return self.__x_max
@@ -55,7 +54,7 @@ class Window:
 
     def add_object(self, obj: Object):
         self.__display_file.add_object(obj)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -65,7 +64,7 @@ class Window:
         self.__y_max = self.__y_max + ZOOM_FACTOR
         self.__y_min = self.__y_min - ZOOM_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
     
@@ -75,7 +74,7 @@ class Window:
         self.__y_max = self.__y_max - ZOOM_FACTOR
         self.__y_min = self.__y_min + ZOOM_FACTOR
         self.__normalized_display_file = DisplayFile()
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -90,7 +89,7 @@ class Window:
             vpn[i] += move_vector[i]
             self.__view_point_normal = tuple(vpn)
             self.__view_reference_point = tuple(vrp)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -105,7 +104,7 @@ class Window:
             vpn[i] += move_vector[i]
             self.__view_point_normal = tuple(vpn)
             self.__view_reference_point = tuple(vrp)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -120,7 +119,7 @@ class Window:
             vpn[i] += move_vector[i]
             self.__view_point_normal = tuple(vpn)
             self.__view_reference_point = tuple(vrp)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -135,7 +134,7 @@ class Window:
             vpn[i] += move_vector[i]
             self.__view_point_normal = tuple(vpn)
             self.__view_reference_point = tuple(vrp)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -146,7 +145,7 @@ class Window:
         vpn[2] += MOVE_FACTOR
         self.__view_point_normal = tuple(vpn)
         self.__view_reference_point = tuple(vrp)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -157,7 +156,7 @@ class Window:
         vpn[2] -= MOVE_FACTOR
         self.__view_point_normal = tuple(vpn)
         self.__view_reference_point = tuple(vrp)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -172,7 +171,7 @@ class Window:
         vrp = list(self.__view_reference_point)
         x, y, z = transform_3d([vrp[0], vrp[1], vrp[2]], [rotation_y])
         self.__view_reference_point = (x, y, z)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
 
@@ -187,9 +186,69 @@ class Window:
         vrp = list(self.__view_reference_point)
         x, y, z = transform_3d([vrp[0], vrp[1], vrp[2]], [rotation_y])
         self.__view_reference_point = (x, y, z)
-        self.ortogonal_projection()
+        self.perspective_projection()
         self.generate_normalized_display_file()
         self.clip()
+
+    def perspective_projection(self):
+        cop_x, cop_y, cop_z = self.__cop
+        wc_x, wc_y = self.__calculate_window_center()
+        wc_z = 0
+
+        translation_center_matrix = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [-1 * cop_x, -1 * cop_y, -1 * cop_z, 1]
+        ]
+        d = math.sqrt((wc_x - cop_x) ** 2 + (wc_y - cop_y) ** 2 + (wc_z - cop_z) ** 2)
+
+        vpn = (wc_x - cop_x, wc_y - cop_y, wc_z - cop_z)
+        theta_x = math.atan2(vpn[1], vpn[0])
+        theta_y = math.atan2(vpn[2], math.sqrt(vpn[0] ** 2 + vpn[1] ** 2))
+        rotation_x = [
+            [1, 0, 0, 0],
+            [0, math.cos(theta_x), math.sin(theta_x), 0],
+            [0, -1 * math.sin(theta_x), math.cos(theta_x), 0],
+            [0, 0, 0, 1]
+        ]
+        rotation_y = [
+            [math.cos(theta_y), 0, -1 * math.sin(theta_y), 0],
+            [0, 1, 0, 0],
+            [math.sin(theta_y), 0, math.cos(theta_y), 0],
+            [0, 0, 0, 1]
+        ]
+        transformations = [
+            translation_center_matrix,
+            rotation_x,
+            rotation_y
+        ]
+        for obj in self.__display_file.objects():
+            new_obj = obj.from_transformations(transformations)
+            points = new_obj.get_3d_coordinates()
+            if new_obj.type == ObjectType.POINT:
+                x = points[0][0]*(points[0][2]/d)
+                y = points[0][1]*(points[0][2]/d)
+                point = Point(x, y, new_obj.color)
+                self.__2d_display_file.add_object(point)
+            elif new_obj.type == ObjectType.LINE:
+                x1 = points[0][0]*(points[0][2]/d)
+                y1 = points[0][1]*(points[0][2]/d)
+
+                x2 = points[1][0]*(points[1][2]/d)
+                y2 = points[1][1]*(points[1][2]/d)
+
+                line = Line((x1, y1), (x2, y2), new_obj.color)
+                self.__2d_display_file.add_object(line)
+            elif new_obj.type == ObjectType.WIREFRAME:
+                transformed_points = []
+                for point in points:
+                    x = point[0]*(point[2]/d)
+                    y = point[1]*(point[2]/d)
+                    transformed_points.append((x, y))
+
+                wireframe = Wireframe(transformed_points, new_obj.color)
+                self.__2d_display_file.add_object(wireframe) 
 
     def ortogonal_projection(self):
         vrp_x, vrp_y, vrp_z = self.__view_reference_point
