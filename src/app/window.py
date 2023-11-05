@@ -25,6 +25,7 @@ class Window:
         window_center = self.__calculate_window_center()
         self.__window_center_x: float = window_center[0]
         self.__window_center_y: float = window_center[1]
+        self.__window_center_z: float = 0
         self.__view_reference_point = (window_center[0], window_center[1], 100)
         self.__view_point_normal = (window_center[0] + 100, window_center[1], 100)
         self.__display_file: DisplayFile = display_file
@@ -79,86 +80,58 @@ class Window:
         self.clip()
 
     def move_forward(self):
-        observer_direction = np.array(self.__view_point_normal) - np.array(self.__view_reference_point)
-        observer_direction = observer_direction / np.linalg.norm(observer_direction)
-        move_vector = MOVE_FACTOR * observer_direction
-        for i in range(len(self.__view_reference_point)):
-            vrp = list(self.__view_reference_point)
-            vpn = list(self.__view_point_normal)
-            vrp[i] += move_vector[i]
-            vpn[i] += move_vector[i]
-            self.__view_point_normal = tuple(vpn)
-            self.__view_reference_point = tuple(vrp)
-        self.perspective_projection()
-        self.generate_normalized_display_file()
-        self.clip()
+        move_backward = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, MOVE_FACTOR, 1]
+        ]
+        self.apply_transformation_at_center(move_backward)
 
     def move_backward(self):
-        observer_direction = np.array(self.__view_point_normal) - np.array(self.__view_reference_point)
-        observer_direction = observer_direction / np.linalg.norm(observer_direction)
-        move_vector = -MOVE_FACTOR * observer_direction
-        for i in range(len(self.__view_reference_point)):
-            vrp = list(self.__view_reference_point)
-            vpn = list(self.__view_point_normal)
-            vrp[i] += move_vector[i]
-            vpn[i] += move_vector[i]
-            self.__view_point_normal = tuple(vpn)
-            self.__view_reference_point = tuple(vrp)
-        self.perspective_projection()
-        self.generate_normalized_display_file()
-        self.clip()
+        move_backward = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, -1*MOVE_FACTOR, 1]
+        ]
+        self.apply_transformation_at_center(move_backward)
 
     def move_left(self):
-        right_vector = np.cross(self.__view_point_normal, (0, 0, 1))
-        right_vector = right_vector / np.linalg.norm(right_vector)
-        move_vector = -MOVE_FACTOR * right_vector
-        for i in range(len(self.__view_reference_point)):
-            vrp = list(self.__view_reference_point)
-            vpn = list(self.__view_point_normal)
-            vrp[i] += move_vector[i]
-            vpn[i] += move_vector[i]
-            self.__view_point_normal = tuple(vpn)
-            self.__view_reference_point = tuple(vrp)
-        self.perspective_projection()
-        self.generate_normalized_display_file()
-        self.clip()
+        move_left = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [MOVE_FACTOR, 0, 0, 1]
+        ]
+        self.apply_transformation_at_center(move_left)
 
     def move_right(self):
-        right_vector = np.cross(self.__view_point_normal, (0, 0, 1))
-        right_vector = right_vector / np.linalg.norm(right_vector)
-        move_vector = MOVE_FACTOR * right_vector
-        for i in range(len(self.__view_reference_point)):
-            vrp = list(self.__view_reference_point)
-            vpn = list(self.__view_point_normal)
-            vrp[i] += move_vector[i]
-            vpn[i] += move_vector[i]
-            self.__view_point_normal = tuple(vpn)
-            self.__view_reference_point = tuple(vrp)
-        self.perspective_projection()
-        self.generate_normalized_display_file()
-        self.clip()
+        move_right = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [-1*MOVE_FACTOR, 0, 0, 1]
+        ]
+        self.apply_transformation_at_center(move_right)
 
     def move_up(self):
-        vrp = list(self.__view_reference_point)
-        vpn = list(self.__view_point_normal)
-        vrp[2] += MOVE_FACTOR
-        vpn[2] += MOVE_FACTOR
-        self.__view_point_normal = tuple(vpn)
-        self.__view_reference_point = tuple(vrp)
-        self.perspective_projection()
-        self.generate_normalized_display_file()
-        self.clip()
+        move_up = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, MOVE_FACTOR, 0, 1]
+        ]
+        self.apply_transformation_at_center(move_up)
 
     def move_down(self):
-        vrp = list(self.__view_reference_point)
-        vpn = list(self.__view_point_normal)
-        vrp[2] -= MOVE_FACTOR
-        vpn[2] -= MOVE_FACTOR
-        self.__view_point_normal = tuple(vpn)
-        self.__view_reference_point = tuple(vrp)
-        self.perspective_projection()
-        self.generate_normalized_display_file()
-        self.clip()
+        move_down = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, -1*MOVE_FACTOR, 0, 1]
+        ]
+        self.apply_transformation_at_center(move_down)
 
     def rotate_left(self):
         self.__rotation += ROTATION_FACTOR
@@ -168,12 +141,7 @@ class Window:
             [math.sin(ROTATION_FACTOR), 0, math.cos(ROTATION_FACTOR), 0],
             [0, 0, 0, 1]
         ]
-        vrp = list(self.__view_reference_point)
-        x, y, z = transform_3d([vrp[0], vrp[1], vrp[2]], [rotation_y])
-        self.__view_reference_point = (x, y, z)
-        self.perspective_projection()
-        self.generate_normalized_display_file()
-        self.clip()
+        self.apply_transformation_at_center(rotation_y)
 
     def rotate_right(self):
         self.__rotation -= ROTATION_FACTOR
@@ -183,17 +151,11 @@ class Window:
             [math.sin(-ROTATION_FACTOR), 0, math.cos(-ROTATION_FACTOR), 0],
             [0, 0, 0, 1]
         ]
-        vrp = list(self.__view_reference_point)
-        x, y, z = transform_3d([vrp[0], vrp[1], vrp[2]], [rotation_y])
-        self.__view_reference_point = (x, y, z)
-        self.perspective_projection()
-        self.generate_normalized_display_file()
-        self.clip()
+        self.apply_transformation_at_center(rotation_y)
 
     def perspective_projection(self):
         cop_x, cop_y, cop_z = self.__cop
-        wc_x, wc_y = self.__calculate_window_center()
-        wc_z = 0
+        wc_x, wc_y, wc_z = self.__window_center_x, self.__window_center_y, self.__window_center_z
 
         translation_center_matrix = [
             [1, 0, 0, 0],
@@ -618,6 +580,80 @@ class Window:
             i = (i+1)%i
 
         wireframe.set_points(wireframe_clipped_points)
+    
+    def apply_transformation_at_center(self, transformation):
+        # Move cop and window to the X,Y axis and move the center of projection to
+        # the correct direction, than inverse the transformations to place the COP
+        # and window center back to correct positions.
+        cop_x, cop_y, cop_z = self.__cop
+        wc_x, wc_y, wc_z = self.__window_center_x, self.__window_center_y, self.__window_center_z
+
+        translation_center_matrix = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [-1 * cop_x, -1 * cop_y, -1 * cop_z, 1]
+        ]
+        d = math.sqrt((wc_x - cop_x) ** 2 + (wc_y - cop_y) ** 2 + (wc_z - cop_z) ** 2)
+
+        vpn = (wc_x - cop_x, wc_y - cop_y, wc_z - cop_z)
+        theta_x = math.atan2(vpn[1], vpn[0])
+        theta_y = math.atan2(vpn[2], math.sqrt(vpn[0] ** 2 + vpn[1] ** 2))
+        rotation_x = [
+            [1, 0, 0, 0],
+            [0, math.cos(theta_x), math.sin(theta_x), 0],
+            [0, -1 * math.sin(theta_x), math.cos(theta_x), 0],
+            [0, 0, 0, 1]
+        ]
+        rotation_y = [
+            [math.cos(theta_y), 0, -1 * math.sin(theta_y), 0],
+            [0, 1, 0, 0],
+            [math.sin(theta_y), 0, math.cos(theta_y), 0],
+            [0, 0, 0, 1]
+        ]
+        transformations = [
+            translation_center_matrix,
+            rotation_x,
+            rotation_y,
+            transformation
+        ]
+
+        rotation_x_inverse = [
+            [1, 0, 0, 0],
+            [0, math.cos(-1*theta_x), math.sin(-1*theta_x), 0],
+            [0, -1 * math.sin(-1*theta_x), math.cos(-1*theta_x), 0],
+            [0, 0, 0, 1]
+        ]
+        rotation_y_inverse = [
+            [math.cos(-1*theta_y), 0, -1 * math.sin(-1*theta_y), 0],
+            [0, 1, 0, 0],
+            [math.sin(-1*theta_y), 0, math.cos(-1*theta_y), 0],
+            [0, 0, 0, 1]
+        ]
+        translation_cop = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [cop_x, cop_y, cop_z, 1]
+        ]
+        inverse_transformations = [
+            rotation_y_inverse,
+            rotation_x_inverse,
+            translation_cop
+        ]
+
+        temp_cop = transform_3d((cop_x, cop_y, cop_z), transformations)
+        self.__cop = transform_3d(temp_cop, inverse_transformations)
+
+        temp_wc_x, temp_wc_y, temp_wc_z = transform_3d((wc_x, wc_y, wc_z), transformations)
+        wc_x, wc_y, wc_z = transform_3d((temp_wc_x, temp_wc_y, temp_wc_z), inverse_transformations)
+        self.__window_center_x = wc_x
+        self.__window_center_y = wc_y
+        self.__window_center_z = wc_z
+
+        self.perspective_projection()
+        self.generate_normalized_display_file()
+        self.clip()
 
 def line_intersection(line1: Line, line2: Line):
     xdiff = (line1.start_point()[0] - line1.end_point()[0], line2.start_point()[0] - line2.end_point()[0])

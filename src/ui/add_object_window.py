@@ -52,6 +52,7 @@ class AddObjectWindow(widgets.QMainWindow):
 
         insert_coordinates_label = widgets.QLabel('Insert object coordinates as points')
         self.__coordinates_input = widgets.QLineEdit(self)
+        self.__coordinates_input.setPlaceholderText('Coordenadas em pares de segmento de pontos ((0,0,0),(1,1,1)),((10,10,10),(20,20,20))')
 
         self.__submit_button = widgets.QPushButton('Add')
         self.__submit_button.clicked.connect(self.__add_object)
