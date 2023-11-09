@@ -7,6 +7,7 @@ from app.graphic.object3d import Object3D, Segment
 from app.graphic.point3d import Point3D
 from app.graphic.wireframe import Wireframe
 from app.graphic.curve import BSplineForwardDifferencesCurve, BezierCurve
+from app.graphic.surface import BezierSurface
 
 class AddObjectWindow(widgets.QMainWindow):
     def __init__(self, viewport, redraw_canvas):
@@ -35,22 +36,25 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__radio_button_line = widgets.QRadioButton('Line')
         self.__radio_button_wireframe = widgets.QRadioButton('Wireframe')
         self.__radio_button_curve = widgets.QRadioButton('Curve')
+        self.__radio_button_surface = widgets.QRadioButton('Superfície Bicúbica')
 
         layout.addWidget(select_object_label)
         layout.addWidget(self.__radio_button_point)
         layout.addWidget(self.__radio_button_line)
         layout.addWidget(self.__radio_button_wireframe)
         layout.addWidget(self.__radio_button_curve)
+        layout.addWidget(self.__radio_button_surface)
 
         self.__radio_button_point.toggled.connect(self.on_clicked_point)
         self.__radio_button_line.toggled.connect(self.on_clicked_line)
         self.__radio_button_wireframe.toggled.connect(self.on_clicked_wireframe)
         self.__radio_button_curve.toggled.connect(self.on_clicked_curve)
+        self.__radio_button_surface.toggled.connect(self.on_clicked_surface)
 
         color_label = widgets.QLabel('Which color to use? (Write hexadecimal as in #000000, black will be used as default)')
         self.__color_input = widgets.QLineEdit(self)
 
-        insert_coordinates_label = widgets.QLabel('Insert object coordinates as points')
+        insert_coordinates_label = widgets.QLabel('Insira os pontos do objeto (No caso de superfícies bicubicas, utilizar 16 pontos)')
         self.__coordinates_input = widgets.QLineEdit(self)
         self.__coordinates_input.setPlaceholderText('Coordenadas em pares de segmento de pontos ((0,0,0),(1,1,1)),((10,10,10),(20,20,20))')
 
@@ -77,6 +81,11 @@ class AddObjectWindow(widgets.QMainWindow):
 
     def on_clicked_point(self):
         self.__select_object_type = ObjectType.POINT
+        self.clear_input_area()
+    
+    def on_clicked_surface(self):
+        self.__select_object_type = ObjectType.CURVE
+        self.__curve_type = 'Surface'
         self.clear_input_area()
 
     def on_clicked_line(self):
@@ -181,6 +190,11 @@ class AddObjectWindow(widgets.QMainWindow):
                 last_point = point
             self.__viewport.window().add_object(Object3D(segments, ObjectType.WIREFRAME, color))
         elif self.__select_object_type == ObjectType.CURVE:
+            if self.__curve_type == 'Surface':
+                if len(coordinates) != 16:
+                    raise "Surface must have 16 control points"
+                self.__viewport.window().add_object(BezierSurface(coordinates, color))
+
             if len(coordinates) < 4:
                 raise "Curve requires four coordinate points"
 
