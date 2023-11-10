@@ -14,12 +14,12 @@ BEZIER_MATRIX = [
 delta = 0.25
 
 class BezierSurface(Object3D):
-    def __init__(self, points, color='#000000'):
+    def __init__(self, lines, color='#000000'):
         g = [
-            [points[0], points[1], points[2], points[3]],
-            [points[4], points[5], points[6], points[7]],
-            [points[8], points[9], points[10], points[11]],
-            [points[12], points[13], points[14], points[15]]
+            lines[0],
+            lines[1],
+            lines[2],
+            lines[3],
         ]
         segments = self.calculate_segments(g)
         super().__init__(segments, ObjectType.WIREFRAME, color)

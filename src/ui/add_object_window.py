@@ -164,8 +164,8 @@ class AddObjectWindow(widgets.QMainWindow):
         color = self.__color_input.text()
         if color == '':
             color = '#000000'
-        coordinates = list(eval(self.__coordinates_input.text()))
         if self.__select_object_type == ObjectType.LINE:
+            coordinates = list(eval(self.__coordinates_input.text()))
             if len(coordinates) != 2:
                 raise "Line type object requires exactly two coordinates"
             start_point = Point3D(coordinates[0][0], coordinates[0][1], coordinates[0][2])
@@ -173,12 +173,14 @@ class AddObjectWindow(widgets.QMainWindow):
             segment = Segment(start_point, end_point)
             self.__viewport.window().add_object(Object3D([segment], ObjectType.LINE, color))
         elif self.__select_object_type == ObjectType.POINT:
+            coordinates = list(eval(self.__coordinates_input.text()))
             if len(coordinates) != 3:
                 raise "Point type object requires exactly one coordinate"
             point = Point3D(coordinates[0], coordinates[1], coordinates[2])
             segment = Segment(point, point)
             self.__viewport.window().add_object(Object3D([segment], ObjectType.POINT, color))
         elif self.__select_object_type == ObjectType.WIREFRAME:
+            coordinates = list(eval(self.__coordinates_input.text()))
             if len(coordinates) < 1:
                 raise "Wireframe type object requires at least one coordinate"
             last_point = None
@@ -191,17 +193,25 @@ class AddObjectWindow(widgets.QMainWindow):
             self.__viewport.window().add_object(Object3D(segments, ObjectType.WIREFRAME, color))
         elif self.__select_object_type == ObjectType.CURVE:
             if self.__curve_type == 'Surface':
-                if len(coordinates) != 16:
+                line1, line2, line3, line4 = self.__coordinates_input.text().split(';')
+                coordinates1 = list(eval(line1))
+                coordinates2 = list(eval(line2))
+                coordinates3 = list(eval(line3))
+                coordinates4 = list(eval(line4))
+                if len(coordinates1)+len(coordinates2)+len(coordinates3)+len(coordinates4) != 16:
                     raise "Surface must have 16 control points"
-                self.__viewport.window().add_object(BezierSurface(coordinates, color))
+                self.__viewport.window().add_object(BezierSurface(
+                    [coordinates1, coordinates2, coordinates3, coordinates4],
+                    color))
+            else:
+                coordinates = list(eval(self.__coordinates_input.text()))
+                if len(coordinates) < 4:
+                    raise "Curve requires four coordinate points"
 
-            if len(coordinates) < 4:
-                raise "Curve requires four coordinate points"
-
-            if self.__curve_type == 'Bezier':
-                self.__viewport.window().add_object(BezierCurve(coordinates, color))
-            elif self.__curve_type == 'BSpline':
-                self.__viewport.window().add_object(BSplineForwardDifferencesCurve(coordinates, color))
+                if self.__curve_type == 'Bezier':
+                    self.__viewport.window().add_object(BezierCurve(coordinates, color))
+                elif self.__curve_type == 'BSpline':
+                    self.__viewport.window().add_object(BSplineForwardDifferencesCurve(coordinates, color))
 
         self.__redraw_canvas()
         self.close()
