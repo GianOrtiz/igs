@@ -7,7 +7,7 @@ from app.graphic.object3d import Object3D, Segment
 from app.graphic.point3d import Point3D
 from app.graphic.wireframe import Wireframe
 from app.graphic.curve import BSplineForwardDifferencesCurve, BezierCurve
-from app.graphic.surface import BezierSurface
+from app.graphic.surface import BezierSurface, BezierForwardDifferencesSurface
 
 class AddObjectWindow(widgets.QMainWindow):
     def __init__(self, viewport, redraw_canvas):
@@ -17,6 +17,7 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__redraw_canvas = redraw_canvas
         self.__should_fill_wireframe = False
         self.__curve_type = 'Bezier'
+        self.__surface_type = 'Bezier'
         self.__line_clipping_algorithm = LineClippingAlgorithm.LIANG_BARSKY
 
         self.initUI()
@@ -88,6 +89,18 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__curve_type = 'Surface'
         self.clear_input_area()
 
+        select_curve_type = widgets.QLabel('Which kind of surface you want to use?')
+        self.__radio_button_bezier = widgets.QRadioButton('Bezier')
+        self.__radio_button_bezier.toggle()
+        self.__radio_button_bspline_curve = widgets.QRadioButton('Bezier with Forward Differences')
+        
+        self.input_layout.addWidget(select_curve_type)
+        self.input_layout.addWidget(self.__radio_button_bezier)
+        self.input_layout.addWidget(self.__radio_button_bspline_curve)
+        
+        self.__radio_button_bezier.toggled.connect(self.on_clicked_surface_bezier)
+        self.__radio_button_bspline_curve.toggled.connect(self.on_clicked_surface_bezier_fwd)
+
     def on_clicked_line(self):
         self.__select_object_type = ObjectType.LINE
         self.clear_input_area()
@@ -132,11 +145,17 @@ class AddObjectWindow(widgets.QMainWindow):
         self.__radio_button_bezier.toggled.connect(self.on_clicked_bezier)
         self.__radio_button_bspline_curve.toggled.connect(self.on_clicked_bspline)
 
+    def on_clicked_surface_bezier(self):
+        self.__surface_type = 'Bezier'
+
     def on_clicked_bezier(self):
         self.__curve_type = 'Bezier'
 
     def on_clicked_bspline(self):
-        self.__curve_type = 'BSpline'        
+        self.__curve_type = 'BSpline'
+
+    def on_clicked_surface_bezier_fwd(self):
+        self.__surface_type = 'BezierFWD'     
 
     def on_clicked_wireframe(self):
         self.__select_object_type = ObjectType.WIREFRAME
@@ -200,7 +219,13 @@ class AddObjectWindow(widgets.QMainWindow):
                 coordinates4 = list(eval(line4))
                 if len(coordinates1)+len(coordinates2)+len(coordinates3)+len(coordinates4) != 16:
                     raise "Surface must have 16 control points"
-                self.__viewport.window().add_object(BezierSurface(
+                
+                if self.__surface_type == 'Bezier':
+                    self.__viewport.window().add_object(BezierSurface(
+                    [coordinates1, coordinates2, coordinates3, coordinates4],
+                    color))
+                elif self.__surface_type == 'BezierFWD':
+                    self.__viewport.window().add_object(BezierForwardDifferencesSurface(
                     [coordinates1, coordinates2, coordinates3, coordinates4],
                     color))
             else:
